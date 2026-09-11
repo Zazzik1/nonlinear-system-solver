@@ -17,7 +17,7 @@ export type Token = {
 
 function isNumber(n?: string): boolean {
     if (n == null) return false;
-    return /^\d+$/.test(n);
+    return /^[\d.]+$/.test(n);
 }
 
 // e.g. variables, constants
@@ -42,14 +42,17 @@ export function tokenize(data: string): Token[] {
     const tokens: Token[] = [];
     let value = '';
 
-    // TODO: split data by `\n` and append EOL token at the end of each line
-
     for (let i = 0; i < data.length; i++) {
         let current = data[i];
         let next = data[i + 1];
         value = `${value}${current}`;
         let type: TokenType | null = null;
         switch (current) {
+            case ';':
+            case ',':
+            case '\n':
+                type = TokenType.EOL;
+                break;
             case '+':
             case '*':
             case '/':
@@ -62,6 +65,7 @@ export function tokenize(data: string): Token[] {
                 if (
                     lastTokenType === TokenType.BINARY_OPERATOR ||
                     lastTokenType === TokenType.PAREN_OPEN ||
+                    lastTokenType === TokenType.EOL ||
                     tokens.length === 0
                 ) {
                     type = TokenType.UNARY_OPERATOR;
@@ -92,8 +96,13 @@ export function tokenize(data: string): Token[] {
             }
         }
         if (type == null) {
-            if (isNumber(value) && !isNumber(next)) {
+            if (isNumber(value) && !isNumber(next) && next !== '.') {
                 type = TokenType.NUMBER_LITERAL;
+                if ([...value].filter((n) => n === '.').length > 1) {
+                    throw new Error(
+                        `Invalid numeric literal "${value}" at position ${i - (value.length - 1)}`,
+                    );
+                }
             } else if (isIdentifier(value, next)) {
                 type = TokenType.IDENTIFIER;
             }

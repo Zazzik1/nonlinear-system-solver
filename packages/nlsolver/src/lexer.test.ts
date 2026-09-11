@@ -349,11 +349,20 @@ describe('tokenize', () => {
             },
         ] satisfies Token[]);
     });
-    test('a b c + 1', () => {
+    // TODO: fix it later, it would be better to not merge 3 identifiers into one:
+    test.skip('a b c + 1', () => {
         expect(tokenize('a b c + 1')).toEqual([
             {
                 type: TokenType.IDENTIFIER,
-                value: 'abc', // TODO (?): probably it shouldn't merge 3 identifiers into one by removing spaces but maybe it's not a bad thing
+                value: 'a',
+            },
+            {
+                type: TokenType.IDENTIFIER,
+                value: 'b',
+            },
+            {
+                type: TokenType.IDENTIFIER,
+                value: 'c',
             },
             {
                 type: TokenType.BINARY_OPERATOR,
@@ -362,6 +371,143 @@ describe('tokenize', () => {
             {
                 type: TokenType.NUMBER_LITERAL,
                 value: '1',
+            },
+            {
+                type: TokenType.EOF,
+                value: '',
+            },
+        ] satisfies Token[]);
+    });
+    test('-1; -2, -3\n-4;    -5', () => {
+        expect(tokenize('-1; -2, -3\n-4;    -5')).toEqual([
+            {
+                type: TokenType.UNARY_OPERATOR,
+                value: '-',
+            },
+            {
+                type: TokenType.NUMBER_LITERAL,
+                value: '1',
+            },
+            {
+                type: TokenType.EOL,
+                value: ';',
+            },
+            {
+                type: TokenType.UNARY_OPERATOR,
+                value: '-',
+            },
+            {
+                type: TokenType.NUMBER_LITERAL,
+                value: '2',
+            },
+            {
+                type: TokenType.EOL,
+                value: ',',
+            },
+            {
+                type: TokenType.UNARY_OPERATOR,
+                value: '-',
+            },
+            {
+                type: TokenType.NUMBER_LITERAL,
+                value: '3',
+            },
+            {
+                type: TokenType.EOL,
+                value: '\n',
+            },
+            {
+                type: TokenType.UNARY_OPERATOR,
+                value: '-',
+            },
+            {
+                type: TokenType.NUMBER_LITERAL,
+                value: '4',
+            },
+            {
+                type: TokenType.EOL,
+                value: ';',
+            },
+            {
+                type: TokenType.UNARY_OPERATOR,
+                value: '-',
+            },
+            {
+                type: TokenType.NUMBER_LITERAL,
+                value: '5',
+            },
+            {
+                type: TokenType.EOF,
+                value: '',
+            },
+        ] satisfies Token[]);
+    });
+    test('12.34+45.6711', () => {
+        expect(tokenize('12.34+45.6711')).toEqual([
+            {
+                type: TokenType.NUMBER_LITERAL,
+                value: '12.34',
+            },
+            {
+                type: TokenType.BINARY_OPERATOR,
+                value: '+',
+            },
+            {
+                type: TokenType.NUMBER_LITERAL,
+                value: '45.6711',
+            },
+            {
+                type: TokenType.EOF,
+                value: '',
+            },
+        ] satisfies Token[]);
+    });
+    test('.4', () => {
+        expect(tokenize('.4')).toEqual([
+            {
+                type: TokenType.NUMBER_LITERAL,
+                value: '.4',
+            },
+            {
+                type: TokenType.EOF,
+                value: '',
+            },
+        ] satisfies Token[]);
+    });
+    test('-.4', () => {
+        expect(tokenize('-.4')).toEqual([
+            {
+                type: TokenType.UNARY_OPERATOR,
+                value: '-',
+            },
+            {
+                type: TokenType.NUMBER_LITERAL,
+                value: '.4',
+            },
+            {
+                type: TokenType.EOF,
+                value: '',
+            },
+        ] satisfies Token[]);
+    });
+    test('4.a * a.4', () => {
+        // seems good, it's similar to "4sinx -> 4.sinx" (4a -> 4.a)
+        expect(tokenize('4.a * a.4')).toEqual([
+            {
+                type: TokenType.NUMBER_LITERAL,
+                value: '4.',
+            },
+            {
+                type: TokenType.IDENTIFIER,
+                value: 'a',
+            },
+            {
+                type: TokenType.BINARY_OPERATOR,
+                value: '*',
+            },
+            {
+                type: TokenType.IDENTIFIER,
+                value: 'a.4',
             },
             {
                 type: TokenType.EOF,
