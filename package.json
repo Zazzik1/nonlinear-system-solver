@@ -1,0 +1,25 @@
+{
+    "name": "nlsolver",
+    "version": "0.0.0",
+    "private": true,
+    "description": "A TypeScript-based numerical solver for systems of nonlinear equations with custom variable names.",
+    "scripts": {
+        "format": "prettier --write .",
+        "prettier:check": "prettier --check .",
+        "prepare": "husky"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Zazzik1/nonlinear-system-solver.git"
+    },
+    "license": "MIT",
+    "workspaces": [
+        "packages/nlsolver",
+        "packages/nlsolver-cli",
+        "packages/web-ui"
+    ],
+    "devDependencies": {
+        "husky": "^9.1.7",
+        "prettier": "^3.9.6"
+    }
+}
