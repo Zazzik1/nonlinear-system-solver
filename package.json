@@ -6,7 +6,8 @@
     "scripts": {
         "format": "prettier --write .",
         "prettier:check": "prettier --check .",
-        "prepare": "husky"
+        "prepare": "husky",
+        "test": "npm run test --workspaces"
     },
     "repository": {
         "type": "git",
