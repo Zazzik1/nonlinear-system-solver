@@ -22,19 +22,23 @@ function isNumber(n?: string): boolean {
 
 // e.g. variables, constants
 function isIdentifier(value: string, next?: string): boolean {
-    if (value === ' ') return false;
+    if (value.includes(' ')) return false;
+    if (isNumber(value)) return false;
     // todo: reduce redundancy:
     return (
-        !isNumber(value) &&
-        (next == null ||
-            next === '(' ||
-            next === ')' ||
-            next === '+' ||
-            next === '-' ||
-            next === '*' ||
-            next === '/' ||
-            next === '%' ||
-            next === '^')
+        next == null ||
+        next === '(' ||
+        next === ')' ||
+        next === '+' ||
+        next === '-' ||
+        next === '*' ||
+        next === '/' ||
+        next === '%' ||
+        next === '^' ||
+        next === ' ' ||
+        next === '\n' ||
+        next === ';' ||
+        next === ','
     );
 }
 
@@ -96,7 +100,11 @@ export function tokenize(data: string): Token[] {
             }
         }
         if (type == null) {
-            if (isNumber(value) && !isNumber(next) && next !== '.') {
+            if (
+                isNumber(value) &&
+                !isNumber(`${value}${next}`) &&
+                next !== '.'
+            ) {
                 type = TokenType.NUMBER_LITERAL;
                 if ([...value].filter((n) => n === '.').length > 1) {
                     throw new Error(

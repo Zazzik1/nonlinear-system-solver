@@ -349,8 +349,28 @@ describe('tokenize', () => {
             },
         ] satisfies Token[]);
     });
+    test('1 2 3', () => {
+        expect(tokenize('1 2 3')).toEqual([
+            {
+                type: TokenType.NUMBER_LITERAL,
+                value: '1',
+            },
+            {
+                type: TokenType.NUMBER_LITERAL,
+                value: '2',
+            },
+            {
+                type: TokenType.NUMBER_LITERAL,
+                value: '3',
+            },
+            {
+                type: TokenType.EOF,
+                value: '',
+            },
+        ] satisfies Token[]);
+    });
     // TODO: fix it later, it would be better to not merge 3 identifiers into one:
-    test.skip('a b c + 1', () => {
+    test('a b c + 1', () => {
         expect(tokenize('a b c + 1')).toEqual([
             {
                 type: TokenType.IDENTIFIER,
@@ -508,6 +528,50 @@ describe('tokenize', () => {
             {
                 type: TokenType.IDENTIFIER,
                 value: 'a.4',
+            },
+            {
+                type: TokenType.EOF,
+                value: '',
+            },
+        ] satisfies Token[]);
+    });
+    test('k$tty123_@       -1', () => {
+        expect(tokenize('k$tty123_@       -1')).toEqual([
+            {
+                type: TokenType.IDENTIFIER,
+                value: 'k$tty123_@',
+            },
+            {
+                type: TokenType.BINARY_OPERATOR,
+                value: '-',
+            },
+            {
+                type: TokenType.NUMBER_LITERAL,
+                value: '1',
+            },
+            {
+                type: TokenType.EOF,
+                value: '',
+            },
+        ] satisfies Token[]);
+    });
+    test('k$tty123_@   ;   -1', () => {
+        expect(tokenize('k$tty123_@   ;   -1')).toEqual([
+            {
+                type: TokenType.IDENTIFIER,
+                value: 'k$tty123_@',
+            },
+            {
+                type: TokenType.EOL,
+                value: ';',
+            },
+            {
+                type: TokenType.UNARY_OPERATOR,
+                value: '-',
+            },
+            {
+                type: TokenType.NUMBER_LITERAL,
+                value: '1',
             },
             {
                 type: TokenType.EOF,
