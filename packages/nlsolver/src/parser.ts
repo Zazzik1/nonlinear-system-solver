@@ -46,13 +46,29 @@ function parseBinary(tokens: Token[]): Expression | undefined {
     const left = parseUnary(tokens);
     if (!left) return undefined;
 
-    const operatorToken = tokens.at(0);
+    let operatorToken = tokens.at(0);
 
-    if (operatorToken?.type !== TokenType.BINARY_OPERATOR) {
-        return left;
+    if (operatorToken?.type === TokenType.NUMERIC_LITERAL) {
+        throw new Error(`Unexpected token "${operatorToken.value}"`);
     }
 
-    tokens.shift();
+    const isImplicitMultiplication =
+        operatorToken?.type === TokenType.IDENTIFIER || // 2 x
+        operatorToken?.type === TokenType.UNARY_OPERATOR || // 2 ln x
+        operatorToken?.type === TokenType.PAREN_OPEN; // 2 (x)
+
+    if (operatorToken?.type !== TokenType.BINARY_OPERATOR) {
+        if (isImplicitMultiplication) {
+            operatorToken = {
+                type: TokenType.BINARY_OPERATOR,
+                value: '*',
+            };
+        } else {
+            return left;
+        }
+    }
+
+    if (!isImplicitMultiplication) tokens.shift();
 
     const right = parseBinary(tokens);
     if (!right) return undefined;
@@ -70,12 +86,6 @@ function parseBinary(tokens: Token[]): Expression | undefined {
 // function parseMultiplicative(tokens: Token[]): Expression | undefined {}
 // function parsePower(tokens: Token[]): Expression | undefined {}
 // function parseParens(tokens: Token[]): Expression | undefined {}
-
-// TODO: handle implicit multiplication:
-// 2x => 2*x        NUMERIC_LITERAL IDENTIFIER -> NUMERIC_LITERAL BINARY_OPERATOR(*) IDENTIFIER
-// 2(...REST) -> 2*(...REST),   NUMERIC_LITERAL PAREN_OPEN ...REST -> NUMERIC_LITERAL BINARY_OPERATOR(*) parseParens(...REST)
-// x(y) -> x*(y),   IDENTIFIER PAREN_OPEN IDENTIFIER -> NUMERIC_LITERAL BINARY_OPERATOR(*) parseParens(...REST)
-// 2lnx -> 2*lnx    NUMERIC_LITERAL UNARY_OPERATOR ...REST -> NUMERIC_LITERAL BINARY_OPERATOR(*) UNARY_OPERATOR ...REST
 
 function parseUnary(tokens: Token[]): Expression | undefined {
     const operatorToken = tokens.at(0);

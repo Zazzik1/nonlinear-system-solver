@@ -357,8 +357,7 @@ describe('parse', () => {
             },
         ] satisfies Expression[]);
     });
-    // todo
-    test.skip('ln 2 - ln 3 EOF', () => {
+    test('ln 2 - ln 3 EOF', () => {
         expect(
             parse([
                 {
@@ -379,7 +378,7 @@ describe('parse', () => {
                 },
                 {
                     type: TokenType.NUMERIC_LITERAL,
-                    value: '2',
+                    value: '3',
                 },
                 {
                     type: TokenType.EOF,
@@ -513,7 +512,7 @@ describe('parse', () => {
             },
         ] satisfies Expression[]);
     });
-    test.skip('ln x - 1 EOF', () => {
+    test('ln x - 1 EOF', () => {
         expect(
             parse([
                 {
@@ -521,7 +520,7 @@ describe('parse', () => {
                     value: 'ln',
                 },
                 {
-                    type: TokenType.NUMERIC_LITERAL,
+                    type: TokenType.IDENTIFIER,
                     value: 'x',
                 },
                 {
@@ -533,8 +532,8 @@ describe('parse', () => {
                     value: '1',
                 },
                 {
-                    type: TokenType.PAREN_CLOSE,
-                    value: ')',
+                    type: TokenType.EOF,
+                    value: '',
                 },
             ] satisfies Token[]),
         ).toEqual([
@@ -556,7 +555,7 @@ describe('parse', () => {
             },
         ] satisfies Expression[]);
     });
-    test.skip('2 x EOF', () => {
+    test('2 x EOF', () => {
         expect(
             parse([
                 {

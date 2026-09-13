@@ -23,7 +23,12 @@ async function main() {
         console.log('-- Lexer --');
         console.log(tokens);
         console.log('-- Parser --');
-        console.log(JSON.stringify(parse(tokens), null, 2));
+        try {
+            const program = parse(tokens);
+            console.log(JSON.stringify(program, null, 2));
+        } catch (error) {
+            console.error(error);
+        }
     }
 }
 
