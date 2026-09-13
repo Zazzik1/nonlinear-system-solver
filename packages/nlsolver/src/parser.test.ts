@@ -210,6 +210,49 @@ describe('parse', () => {
             },
         ] satisfies Expression[]);
     });
+    test('ln x + 1 EOF', () => {
+        expect(
+            parse([
+                {
+                    type: TokenType.UNARY_OPERATOR,
+                    value: 'ln',
+                },
+                {
+                    type: TokenType.IDENTIFIER,
+                    value: 'x',
+                },
+                {
+                    type: TokenType.BINARY_OPERATOR,
+                    value: '+',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '1',
+                },
+                {
+                    type: TokenType.EOF,
+                    value: '',
+                },
+            ] satisfies Token[]),
+        ).toEqual([
+            {
+                kind: ExprKind.BINARY_EXPRESSION,
+                operator: '+',
+                left: {
+                    kind: ExprKind.UNARY_EXPRESSION,
+                    operator: 'ln',
+                    argument: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'x',
+                    },
+                },
+                right: {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 1,
+                },
+            },
+        ] satisfies Expression[]);
+    });
     // todo
     test.skip('2 + 3 * 4 EOF', () => {
         expect(

@@ -86,7 +86,8 @@ function parseUnary(tokens: Token[]): Expression | undefined {
 
     tokens.shift();
 
-    const argument = parseBinary(tokens);
+    // if argument type is PAREN_OPEN -> const argument = parseBinary(tokens);
+    const argument = parseUnary(tokens);
     if (!argument) return undefined;
 
     return {
