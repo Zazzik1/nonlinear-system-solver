@@ -60,7 +60,7 @@ describe('tokenize', () => {
                 value: '-',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '2',
             },
             {
@@ -72,7 +72,7 @@ describe('tokenize', () => {
     test('2ln(3)', () => {
         expect(tokenize('2ln(3)')).toEqual([
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '2',
             },
             {
@@ -84,7 +84,7 @@ describe('tokenize', () => {
                 value: '(',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '3',
             },
             {
@@ -136,7 +136,7 @@ describe('tokenize', () => {
                 value: 'ln',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '2',
             },
             {
@@ -156,7 +156,7 @@ describe('tokenize', () => {
                 value: '(',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '2',
             },
             {
@@ -216,7 +216,7 @@ describe('tokenize', () => {
     test('2sinx*cosx', () => {
         expect(tokenize('2sinx*cosx')).toEqual([
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '2',
             },
             {
@@ -248,7 +248,7 @@ describe('tokenize', () => {
     test('2sinxcosx', () => {
         expect(tokenize('2sinxcosx')).toEqual([
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '2',
             },
             {
@@ -320,7 +320,7 @@ describe('tokenize', () => {
                 value: '-',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '1',
             },
             {
@@ -336,7 +336,7 @@ describe('tokenize', () => {
                 value: '-',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '1',
             },
             {
@@ -352,15 +352,15 @@ describe('tokenize', () => {
     test('1 2 3', () => {
         expect(tokenize('1 2 3')).toEqual([
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '1',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '2',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '3',
             },
             {
@@ -389,7 +389,7 @@ describe('tokenize', () => {
                 value: '+',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '1',
             },
             {
@@ -405,7 +405,7 @@ describe('tokenize', () => {
                 value: '-',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '1',
             },
             {
@@ -417,7 +417,7 @@ describe('tokenize', () => {
                 value: '-',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '2',
             },
             {
@@ -429,7 +429,7 @@ describe('tokenize', () => {
                 value: '-',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '3',
             },
             {
@@ -441,7 +441,7 @@ describe('tokenize', () => {
                 value: '-',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '4',
             },
             {
@@ -453,7 +453,7 @@ describe('tokenize', () => {
                 value: '-',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '5',
             },
             {
@@ -465,7 +465,7 @@ describe('tokenize', () => {
     test('12.34+45.6711', () => {
         expect(tokenize('12.34+45.6711')).toEqual([
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '12.34',
             },
             {
@@ -473,7 +473,7 @@ describe('tokenize', () => {
                 value: '+',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '45.6711',
             },
             {
@@ -485,7 +485,7 @@ describe('tokenize', () => {
     test('.4', () => {
         expect(tokenize('.4')).toEqual([
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '.4',
             },
             {
@@ -501,7 +501,7 @@ describe('tokenize', () => {
                 value: '-',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '.4',
             },
             {
@@ -514,7 +514,7 @@ describe('tokenize', () => {
         // seems good, it's similar to "4sinx -> 4.sinx" (4a -> 4.a)
         expect(tokenize('4.a * a.4')).toEqual([
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '4.',
             },
             {
@@ -546,7 +546,7 @@ describe('tokenize', () => {
                 value: '-',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '1',
             },
             {
@@ -570,7 +570,7 @@ describe('tokenize', () => {
                 value: '-',
             },
             {
-                type: TokenType.NUMBER_LITERAL,
+                type: TokenType.NUMERIC_LITERAL,
                 value: '1',
             },
             {

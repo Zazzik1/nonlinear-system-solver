@@ -1,5 +1,5 @@
 export enum TokenType {
-    NUMBER_LITERAL = 'NUMBER_LITERAL',
+    NUMERIC_LITERAL = 'NUMERIC_LITERAL',
     UNARY_OPERATOR = 'UNARY_OPERATOR',
     BINARY_OPERATOR = 'BINARY_OPERATOR',
     EOL = 'EOL',
@@ -105,7 +105,7 @@ export function tokenize(data: string): Token[] {
                 !isNumber(`${value}${next}`) &&
                 next !== '.'
             ) {
-                type = TokenType.NUMBER_LITERAL;
+                type = TokenType.NUMERIC_LITERAL;
                 if ([...value].filter((n) => n === '.').length > 1) {
                     throw new Error(
                         `Invalid numeric literal "${value}" at position ${i - (value.length - 1)}`,
@@ -118,7 +118,6 @@ export function tokenize(data: string): Token[] {
         if (current === ' ') {
             value = value.slice(0, -1);
         }
-        // console.log('DEBUG', { current, value, type });
         if (!type) continue;
 
         tokens.push({
