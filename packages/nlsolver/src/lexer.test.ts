@@ -369,7 +369,6 @@ describe('tokenize', () => {
             },
         ] satisfies Token[]);
     });
-    // TODO: fix it later, it would be better to not merge 3 identifiers into one:
     test('a b c + 1', () => {
         expect(tokenize('a b c + 1')).toEqual([
             {

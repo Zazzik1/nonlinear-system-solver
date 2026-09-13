@@ -253,8 +253,7 @@ describe('parse', () => {
             },
         ] satisfies Expression[]);
     });
-    // todo
-    test.skip('2 + 3 * 4 EOF', () => {
+    test('2 + 3 * 4 EOF', () => {
         expect(
             parse([
                 {
@@ -357,6 +356,74 @@ describe('parse', () => {
             },
         ] satisfies Expression[]);
     });
+    // todo
+    test.skip('x ^ 2 + 2 x - 1 EOF', () => {
+        expect(
+            parse([
+                {
+                    type: TokenType.IDENTIFIER,
+                    value: 'x',
+                },
+                {
+                    type: TokenType.BINARY_OPERATOR,
+                    value: '^',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '2',
+                },
+                {
+                    type: TokenType.BINARY_OPERATOR,
+                    value: '-',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '1',
+                },
+                {
+                    type: TokenType.EOF,
+                    value: '',
+                },
+            ] satisfies Token[]),
+        ).toEqual([
+            {
+                kind: ExprKind.BINARY_EXPRESSION,
+                operator: '+',
+                left: {
+                    kind: ExprKind.BINARY_EXPRESSION,
+                    operator: '^',
+                    left: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'x',
+                    },
+                    right: {
+                        kind: ExprKind.NUMERIC_LITERAL,
+                        value: 2,
+                    },
+                },
+                right: {
+                    kind: ExprKind.BINARY_EXPRESSION,
+                    operator: '-',
+                    left: {
+                        kind: ExprKind.BINARY_EXPRESSION,
+                        operator: '*',
+                        left: {
+                            kind: ExprKind.NUMERIC_LITERAL,
+                            value: 2,
+                        },
+                        right: {
+                            kind: ExprKind.IDENTIFIER,
+                            value: 'x',
+                        },
+                    },
+                    right: {
+                        kind: ExprKind.NUMERIC_LITERAL,
+                        value: 1,
+                    },
+                },
+            },
+        ] satisfies Expression[]);
+    });
     test('ln 2 - ln 3 EOF', () => {
         expect(
             parse([
@@ -408,8 +475,7 @@ describe('parse', () => {
             },
         ] satisfies Expression[]);
     });
-    // todo
-    test.skip('(2 + 3) * 4 EOF', () => {
+    test('( 2 + 3 ) * 4 EOF', () => {
         expect(
             parse([
                 {
@@ -440,6 +506,10 @@ describe('parse', () => {
                     type: TokenType.NUMERIC_LITERAL,
                     value: '4',
                 },
+                {
+                    type: TokenType.EOF,
+                    value: '',
+                },
             ] satisfies Token[]),
         ).toEqual([
             {
@@ -447,7 +517,7 @@ describe('parse', () => {
                 operator: '*',
                 left: {
                     kind: ExprKind.BINARY_EXPRESSION,
-                    operator: '*',
+                    operator: '+',
                     left: {
                         kind: ExprKind.NUMERIC_LITERAL,
                         value: 2,
@@ -464,8 +534,62 @@ describe('parse', () => {
             },
         ] satisfies Expression[]);
     });
-    // todo
-    test.skip('ln ( x - 1 ) EOF', () => {
+    test('x ( y - 1 ) EOF', () => {
+        expect(
+            parse([
+                {
+                    type: TokenType.IDENTIFIER,
+                    value: 'x',
+                },
+                {
+                    type: TokenType.PAREN_OPEN,
+                    value: '(',
+                },
+                {
+                    type: TokenType.IDENTIFIER,
+                    value: 'y',
+                },
+                {
+                    type: TokenType.BINARY_OPERATOR,
+                    value: '-',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '1',
+                },
+                {
+                    type: TokenType.PAREN_CLOSE,
+                    value: ')',
+                },
+                {
+                    type: TokenType.EOF,
+                    value: '',
+                },
+            ] satisfies Token[]),
+        ).toEqual([
+            {
+                kind: ExprKind.BINARY_EXPRESSION,
+                operator: '*',
+                left: {
+                    kind: ExprKind.IDENTIFIER,
+                    value: 'x',
+                },
+                right: {
+                    kind: ExprKind.BINARY_EXPRESSION,
+                    operator: '-',
+                    left: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'y',
+                    },
+                    right: {
+                        kind: ExprKind.NUMERIC_LITERAL,
+                        value: 1,
+                    },
+                },
+            },
+        ] satisfies Expression[]);
+    });
+    test('ln ( x - 1 ) EOF', () => {
         expect(
             parse([
                 {
@@ -477,7 +601,7 @@ describe('parse', () => {
                     value: '(',
                 },
                 {
-                    type: TokenType.NUMERIC_LITERAL,
+                    type: TokenType.IDENTIFIER,
                     value: 'x',
                 },
                 {
@@ -491,6 +615,10 @@ describe('parse', () => {
                 {
                     type: TokenType.PAREN_CLOSE,
                     value: ')',
+                },
+                {
+                    type: TokenType.EOF,
+                    value: '',
                 },
             ] satisfies Token[]),
         ).toEqual([
@@ -508,6 +636,250 @@ describe('parse', () => {
                         kind: ExprKind.NUMERIC_LITERAL,
                         value: 1,
                     },
+                },
+            },
+        ] satisfies Expression[]);
+    });
+    test('1 + ( 2 ) + 3 EOF', () => {
+        expect(
+            parse([
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '1',
+                },
+                {
+                    type: TokenType.BINARY_OPERATOR,
+                    value: '+',
+                },
+                {
+                    type: TokenType.PAREN_OPEN,
+                    value: '(',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '2',
+                },
+                {
+                    type: TokenType.PAREN_CLOSE,
+                    value: ')',
+                },
+                {
+                    type: TokenType.BINARY_OPERATOR,
+                    value: '+',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '3',
+                },
+                {
+                    type: TokenType.EOF,
+                    value: '',
+                },
+            ] satisfies Token[]),
+        ).toEqual([
+            {
+                kind: ExprKind.BINARY_EXPRESSION,
+                operator: '+',
+                left: {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 1,
+                },
+                right: {
+                    kind: ExprKind.BINARY_EXPRESSION,
+                    operator: '+',
+                    left: {
+                        kind: ExprKind.NUMERIC_LITERAL,
+                        value: 2,
+                    },
+                    right: {
+                        kind: ExprKind.NUMERIC_LITERAL,
+                        value: 3,
+                    },
+                },
+            },
+        ] satisfies Expression[]);
+    });
+    test('1 + ( 2 + 3 ) + 4 EOF', () => {
+        expect(
+            parse([
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '1',
+                },
+                {
+                    type: TokenType.BINARY_OPERATOR,
+                    value: '+',
+                },
+                {
+                    type: TokenType.PAREN_OPEN,
+                    value: '(',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '2',
+                },
+                {
+                    type: TokenType.BINARY_OPERATOR,
+                    value: '+',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '3',
+                },
+                {
+                    type: TokenType.PAREN_CLOSE,
+                    value: ')',
+                },
+                {
+                    type: TokenType.BINARY_OPERATOR,
+                    value: '+',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '4',
+                },
+                {
+                    type: TokenType.EOF,
+                    value: '',
+                },
+            ] satisfies Token[]),
+        ).toEqual([
+            {
+                kind: ExprKind.BINARY_EXPRESSION,
+                operator: '+',
+                left: {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 1,
+                },
+                right: {
+                    kind: ExprKind.BINARY_EXPRESSION,
+                    operator: '+',
+                    left: {
+                        kind: ExprKind.BINARY_EXPRESSION,
+                        operator: '+',
+                        left: {
+                            kind: ExprKind.NUMERIC_LITERAL,
+                            value: 2,
+                        },
+                        right: {
+                            kind: ExprKind.NUMERIC_LITERAL,
+                            value: 3,
+                        },
+                    },
+                    right: {
+                        kind: ExprKind.NUMERIC_LITERAL,
+                        value: 4,
+                    },
+                },
+            },
+        ] satisfies Expression[]);
+    });
+    test('1 + ( ( 2 ) ) + 3 EOF', () => {
+        expect(
+            parse([
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '1',
+                },
+                {
+                    type: TokenType.BINARY_OPERATOR,
+                    value: '+',
+                },
+                {
+                    type: TokenType.PAREN_OPEN,
+                    value: '(',
+                },
+                {
+                    type: TokenType.PAREN_OPEN,
+                    value: '(',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '2',
+                },
+                {
+                    type: TokenType.PAREN_CLOSE,
+                    value: ')',
+                },
+                {
+                    type: TokenType.PAREN_CLOSE,
+                    value: ')',
+                },
+                {
+                    type: TokenType.BINARY_OPERATOR,
+                    value: '+',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '3',
+                },
+                {
+                    type: TokenType.EOF,
+                    value: '',
+                },
+            ] satisfies Token[]),
+        ).toEqual([
+            {
+                kind: ExprKind.BINARY_EXPRESSION,
+                operator: '+',
+                left: {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 1,
+                },
+                right: {
+                    kind: ExprKind.BINARY_EXPRESSION,
+                    operator: '+',
+                    left: {
+                        kind: ExprKind.NUMERIC_LITERAL,
+                        value: 2,
+                    },
+                    right: {
+                        kind: ExprKind.NUMERIC_LITERAL,
+                        value: 3,
+                    },
+                },
+            },
+        ] satisfies Expression[]);
+    });
+    test('( 1 ) + 2 EOF', () => {
+        expect(
+            parse([
+                {
+                    type: TokenType.PAREN_OPEN,
+                    value: '(',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '1',
+                },
+                {
+                    type: TokenType.PAREN_CLOSE,
+                    value: ')',
+                },
+                {
+                    type: TokenType.BINARY_OPERATOR,
+                    value: '+',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '2',
+                },
+                {
+                    type: TokenType.EOF,
+                    value: '',
+                },
+            ] satisfies Token[]),
+        ).toEqual([
+            {
+                kind: ExprKind.BINARY_EXPRESSION,
+                operator: '+',
+                left: {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 1,
+                },
+                right: {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 2,
                 },
             },
         ] satisfies Expression[]);

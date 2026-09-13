@@ -81,11 +81,10 @@ function parseBinary(tokens: Token[]): Expression | undefined {
     };
 }
 
-// TODO: handle proper order of operations (also handle parens):
+// TODO: handle proper order of operations:
 // function parseAdditive(tokens: Token[]): Expression | undefined {}
 // function parseMultiplicative(tokens: Token[]): Expression | undefined {}
 // function parsePower(tokens: Token[]): Expression | undefined {}
-// function parseParens(tokens: Token[]): Expression | undefined {}
 
 function parseUnary(tokens: Token[]): Expression | undefined {
     const operatorToken = tokens.at(0);
@@ -108,9 +107,17 @@ function parseUnary(tokens: Token[]): Expression | undefined {
 }
 
 function parsePrimary(tokens: Token[]): Expression | undefined {
-    const token = tokens.shift();
+    let token = tokens.shift();
     if (!token) return undefined;
-
+    if (token.type === TokenType.PAREN_OPEN) {
+        const contents = parseBinary(tokens);
+        const parenCloseToken = tokens.shift();
+        if (parenCloseToken?.type !== TokenType.PAREN_CLOSE) {
+            throw new Error('Missing token: )');
+        }
+        return contents;
+    }
+    if (!token) return undefined;
     if (token.type === TokenType.NUMERIC_LITERAL) {
         return {
             kind: ExprKind.NUMERIC_LITERAL,
