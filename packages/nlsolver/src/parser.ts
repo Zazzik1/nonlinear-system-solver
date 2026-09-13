@@ -86,6 +86,8 @@ function parseBinary(tokens: Token[]): Expression | undefined {
 // function parseMultiplicative(tokens: Token[]): Expression | undefined {}
 // function parsePower(tokens: Token[]): Expression | undefined {}
 
+// TODO: add option to declare variables when the second token in a line is "=", e.g. x=2, y=ln3, z=sinx
+
 function parseUnary(tokens: Token[]): Expression | undefined {
     const operatorToken = tokens.at(0);
     if (!operatorToken) return undefined;
