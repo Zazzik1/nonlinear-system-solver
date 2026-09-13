@@ -1,14 +1,19 @@
 import { Expression, ExprKind } from './parser';
 
+export type Variables = Record<string, number | Expression | undefined>;
+
 export function evalExpression(
     expr: Expression,
-    variables: Record<string, number>,
+    variables: Variables = {},
 ): number | undefined {
     if (expr.kind === ExprKind.NUMERIC_LITERAL) return expr.value;
     if (expr.kind === ExprKind.IDENTIFIER) {
-        if (variables[expr.value] == null)
+        const variable = variables[expr.value];
+        if (variable == null) {
             throw new Error(`Variable "${expr.value}" is not defined`);
-        return variables[expr.value];
+        }
+        if (typeof variable === 'number') return variable;
+        return evalExpression(variable, variables);
     }
     if (expr.kind === ExprKind.BINARY_EXPRESSION) {
         if (expr.left == null || expr.right == null) {
@@ -41,14 +46,30 @@ export function evalExpression(
         const argument = evalExpression(expr.argument, variables);
         if (argument == null) throw new Error('Eval error');
         switch (expr.operator) {
+            case '-':
+                return -argument;
             case 'ln':
                 return Math.log(argument);
+            case 'asin':
+                return Math.asin(argument);
+            case 'acos':
+                return Math.acos(argument);
+            case 'atan':
+                return Math.atan(argument);
             case 'sin':
                 return Math.sin(argument);
             case 'cos':
                 return Math.cos(argument);
             case 'tan':
                 return Math.tan(argument);
+            case 'sqrt':
+                return Math.sqrt(argument);
+            case 'sign':
+                return Math.sign(argument);
+            default:
+                throw new Error(
+                    `eval error: unknown operator "${expr.operator}"`,
+                );
         }
     }
     return undefined;
@@ -56,7 +77,7 @@ export function evalExpression(
 
 export function evaluate(
     expressions: Expression[],
-    variables: Record<string, number>,
+    variables: Variables = {},
 ): (number | undefined)[] {
     const results: (number | undefined)[] = [];
 

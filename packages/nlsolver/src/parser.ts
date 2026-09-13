@@ -97,7 +97,6 @@ function parseUnary(tokens: Token[]): Expression | undefined {
 
     tokens.shift();
 
-    // if argument type is PAREN_OPEN -> const argument = parseBinary(tokens);
     const argument = parseUnary(tokens);
     if (!argument) return undefined;
 
@@ -134,7 +133,7 @@ function parsePrimary(tokens: Token[]): Expression | undefined {
     }
 }
 
-function parseExpr(tokens: Token[]): Expression | undefined {
+export function parseExpr(tokens: Token[]): Expression | undefined {
     return parseBinary(tokens);
 }
 

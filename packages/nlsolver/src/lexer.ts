@@ -90,9 +90,14 @@ export function tokenize(data: string): Token[] {
         if (type == null) {
             switch (value) {
                 case 'ln':
+                case 'asin':
+                case 'acos':
+                case 'atan':
                 case 'sin':
                 case 'cos':
                 case 'tan':
+                case 'sqrt':
+                case 'sign':
                     type = TokenType.UNARY_OPERATOR;
                     break;
                 default:
