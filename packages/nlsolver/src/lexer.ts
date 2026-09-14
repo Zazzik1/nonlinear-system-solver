@@ -7,6 +7,8 @@ export enum TokenType {
     PAREN_OPEN = 'PAREN_OPEN',
     PAREN_CLOSE = 'PAREN_CLOSE',
     IDENTIFIER = 'IDENTIFIER',
+    // ASSIGN_OP = 'ASSIGN_OP', // todo
+    COMMENT = 'COMMENT',
 }
 
 export type Token = {
@@ -38,7 +40,8 @@ function isIdentifier(value: string, next?: string): boolean {
         next === ' ' ||
         next === '\n' ||
         next === ';' ||
-        next === ','
+        next === ',' ||
+        next === '#'
     );
 }
 
@@ -84,6 +87,21 @@ export function tokenize(data: string): Token[] {
             case ')':
                 type = TokenType.PAREN_CLOSE;
                 break;
+            case '#':
+                for (; i < data.length; i++) {
+                    current = data[i];
+
+                    if (
+                        current === ';' ||
+                        current === ',' ||
+                        current === '\n'
+                    ) {
+                        i--;
+                        value = '';
+                        break;
+                    }
+                }
+                continue;
             default:
                 break;
         }

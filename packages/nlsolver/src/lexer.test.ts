@@ -578,4 +578,40 @@ describe('tokenize', () => {
             },
         ] satisfies Token[]);
     });
+    test('1 + 2 # + 3 ; 4 ; 5 #meow', () => {
+        expect(tokenize('1 + 2 # + 3 ; 4 ; 5 #dd')).toEqual([
+            {
+                type: TokenType.NUMERIC_LITERAL,
+                value: '1',
+            },
+            {
+                type: TokenType.BINARY_OPERATOR,
+                value: '+',
+            },
+            {
+                type: TokenType.NUMERIC_LITERAL,
+                value: '2',
+            },
+            {
+                type: TokenType.EOL,
+                value: ';',
+            },
+            {
+                type: TokenType.NUMERIC_LITERAL,
+                value: '4',
+            },
+            {
+                type: TokenType.EOL,
+                value: ';',
+            },
+            {
+                type: TokenType.NUMERIC_LITERAL,
+                value: '5',
+            },
+            {
+                type: TokenType.EOF,
+                value: '',
+            },
+        ] satisfies Token[]);
+    });
 });
