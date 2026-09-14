@@ -1,7 +1,7 @@
 import readline from 'readline';
 import { tokenize } from './lexer';
 import { parse } from './parser';
-import { evaluate } from './eval';
+import { createVariables, evaluate } from './eval';
 import { GLOBALS } from './constants';
 
 const rl = readline.createInterface({
@@ -19,6 +19,7 @@ const prompt = (question: string): Promise<string> => {
 
 async function main() {
     console.log('REPL');
+    const variables = createVariables(GLOBALS);
     while (true) {
         const input = await prompt('> ');
         try {
@@ -28,8 +29,10 @@ async function main() {
             console.log('-- Parser --');
             const program = parse(tokens);
             console.log(JSON.stringify(program, null, 2));
+            console.log('-- Variables --');
+            console.log([...variables.keys()]);
             console.log('-- Eval --');
-            console.log(evaluate(program, GLOBALS));
+            console.log(evaluate(program, variables));
         } catch (error) {
             console.error(error);
         }

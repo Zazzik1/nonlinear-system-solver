@@ -1,4 +1,4 @@
-import { evaluate, Variables } from './eval';
+import { createVariables, evaluate, Variables } from './eval';
 import { Expression, ExprKind } from './parser';
 
 describe('evaluate', () => {
@@ -23,7 +23,7 @@ describe('evaluate', () => {
                         },
                     },
                 ] satisfies Expression[],
-                { x: 1 } satisfies Variables,
+                createVariables({ x: 1 }),
             ),
         ).toEqual([1]);
     });
@@ -44,8 +44,20 @@ describe('evaluate', () => {
                         },
                     },
                 ] satisfies Expression[],
-                { a: 123, b: 321 } satisfies Variables,
+                createVariables({ a: 123, b: 321 }),
             ),
         ).toEqual([444]);
+    });
+    test('__proto__, toString, constructor -> must be undefined', () => {
+        for (const name of ['__proto__', 'toString', 'constructor']) {
+            expect(() =>
+                evaluate([
+                    {
+                        kind: ExprKind.IDENTIFIER,
+                        value: name,
+                    },
+                ] satisfies Expression[]),
+            ).toThrow(`Variable "${name}" is not defined`);
+        }
     });
 });

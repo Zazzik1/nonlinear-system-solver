@@ -1,14 +1,22 @@
 import { Expression, ExprKind } from './parser';
 
-export type Variables = Record<string, number | Expression | undefined>;
+export type Variable = number | Expression | undefined;
+export type Variables = Map<string, Variable>;
+
+export function createVariables(
+    variables?: Record<string, Variable>,
+): Variables {
+    if (!variables) return new Map();
+    return new Map(Object.entries(variables));
+}
 
 export function evalExpression(
     expr: Expression,
-    variables: Variables = {},
+    variables: Variables = new Map(),
 ): number | undefined {
     if (expr.kind === ExprKind.NUMERIC_LITERAL) return expr.value;
     if (expr.kind === ExprKind.IDENTIFIER) {
-        const variable = variables[expr.value];
+        const variable = variables.get(expr.value);
         if (variable == null) {
             throw new Error(`Variable "${expr.value}" is not defined`);
         }
@@ -77,7 +85,7 @@ export function evalExpression(
 
 export function evaluate(
     expressions: Expression[],
-    variables: Variables = {},
+    variables: Variables = new Map(),
 ): (number | undefined)[] {
     const results: (number | undefined)[] = [];
 
