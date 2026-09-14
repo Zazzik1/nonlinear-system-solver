@@ -579,7 +579,7 @@ describe('tokenize', () => {
         ] satisfies Token[]);
     });
     test('1 + 2 # + 3 ; 4 ; 5 #meow', () => {
-        expect(tokenize('1 + 2 # + 3 ; 4 ; 5 #dd')).toEqual([
+        expect(tokenize('1 + 2 # + 3 ; 4 ; 5 #meow')).toEqual([
             {
                 type: TokenType.NUMERIC_LITERAL,
                 value: '1',
@@ -591,6 +591,10 @@ describe('tokenize', () => {
             {
                 type: TokenType.NUMERIC_LITERAL,
                 value: '2',
+            },
+            {
+                type: TokenType.COMMENT,
+                value: ' + 3 ',
             },
             {
                 type: TokenType.EOL,
@@ -607,6 +611,26 @@ describe('tokenize', () => {
             {
                 type: TokenType.NUMERIC_LITERAL,
                 value: '5',
+            },
+            {
+                type: TokenType.COMMENT,
+                value: 'meow',
+            },
+            {
+                type: TokenType.EOF,
+                value: '',
+            },
+        ] satisfies Token[]);
+    });
+    test('1###2', () => {
+        expect(tokenize('1###2')).toEqual([
+            {
+                type: TokenType.NUMERIC_LITERAL,
+                value: '1',
+            },
+            {
+                type: TokenType.COMMENT,
+                value: '##2',
             },
             {
                 type: TokenType.EOF,

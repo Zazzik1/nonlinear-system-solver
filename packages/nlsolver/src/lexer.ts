@@ -88,20 +88,23 @@ export function tokenize(data: string): Token[] {
                 type = TokenType.PAREN_CLOSE;
                 break;
             case '#':
+                value = '';
+                let j = 0;
                 for (; i < data.length; i++) {
                     current = data[i];
-
+                    j++;
                     if (
                         current === ';' ||
                         current === ',' ||
                         current === '\n'
                     ) {
                         i--;
-                        value = '';
                         break;
+                    } else if (j > 1) {
+                        value = `${value}${current}`;
                     }
                 }
-                continue;
+                type = TokenType.COMMENT;
             default:
                 break;
         }
