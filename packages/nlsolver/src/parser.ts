@@ -1,6 +1,7 @@
 import { Token, TokenType } from './lexer';
 
 export enum ExprKind {
+    EQUATION = 'EQUATION',
     UNARY_EXPRESSION = 'UNARY_EXPRESSION',
     BINARY_EXPRESSION = 'BINARY_EXPRESSION',
     NUMERIC_LITERAL = 'NUMERIC_LITERAL',
@@ -26,6 +27,12 @@ export type Expression =
           kind: ExprKind.IDENTIFIER;
           value: string;
       };
+
+export type Equation = {
+    kind: ExprKind.EQUATION;
+    left?: Expression;
+    right?: Expression;
+};
 
 function splitTokensByLines(tokens: Token[]): Token[][] {
     const result: Token[][] = [[]];
@@ -137,13 +144,30 @@ export function parseExpr(tokens: Token[]): Expression | undefined {
     return parseBinary(tokens);
 }
 
-export function parse(tokens: Token[]): Expression[] {
-    const expressions: Expression[] = [];
+export function parseEquation(
+    tokens: Token[],
+): Expression | Equation | undefined {
+    const eqToken = tokens.find((t) => t.type === TokenType.ASSIGN_OP);
+    if (!eqToken) return parseExpr(tokens);
+
+    const eqTokenIdx = tokens.indexOf(eqToken);
+    const left = parseBinary(tokens.slice(0, eqTokenIdx));
+    const right = parseBinary(tokens.slice(eqTokenIdx + 1, -1));
+    if (!left || !right) return;
+    return {
+        kind: ExprKind.EQUATION,
+        left,
+        right,
+    };
+}
+
+export function parse(tokens: Token[]): (Expression | Equation)[] {
+    const results: (Expression | Equation)[] = [];
 
     for (const sp of splitTokensByLines(tokens)) {
-        const expr = parseExpr(sp);
-        if (expr) expressions.push(expr);
+        const expr = parseEquation(sp);
+        if (expr) results.push(expr);
     }
 
-    return expressions;
+    return results;
 }

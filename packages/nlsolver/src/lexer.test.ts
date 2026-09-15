@@ -638,4 +638,24 @@ describe('tokenize', () => {
             },
         ] satisfies Token[]);
     });
+    test('x = 1', () => {
+        expect(tokenize('x = 1')).toEqual([
+            {
+                type: TokenType.IDENTIFIER,
+                value: 'x',
+            },
+            {
+                type: TokenType.ASSIGN_OP,
+                value: '=',
+            },
+            {
+                type: TokenType.NUMERIC_LITERAL,
+                value: '1',
+            },
+            {
+                type: TokenType.EOF,
+                value: '',
+            },
+        ] satisfies Token[]);
+    });
 });

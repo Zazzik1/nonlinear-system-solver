@@ -1,5 +1,5 @@
 import { Token, TokenType } from './lexer';
-import { Expression, ExprKind, parse } from './parser';
+import { Equation, Expression, ExprKind, parse } from './parser';
 
 describe('parse', () => {
     test('EOF', () => {
@@ -957,5 +957,128 @@ describe('parse', () => {
                 },
             },
         ] satisfies Expression[]);
+    });
+    test('kitty = ln ( meow ) EOF', () => {
+        // does not throw "variable 'meow' is not defined"
+        expect(
+            parse([
+                {
+                    type: TokenType.IDENTIFIER,
+                    value: 'kitty',
+                },
+                {
+                    type: TokenType.ASSIGN_OP,
+                    value: '=',
+                },
+                {
+                    type: TokenType.UNARY_OPERATOR,
+                    value: 'ln',
+                },
+                {
+                    type: TokenType.PAREN_OPEN,
+                    value: '(',
+                },
+                {
+                    type: TokenType.IDENTIFIER,
+                    value: 'meow',
+                },
+                {
+                    type: TokenType.PAREN_CLOSE,
+                    value: ')',
+                },
+                {
+                    type: TokenType.EOF,
+                    value: '',
+                },
+            ] satisfies Token[]),
+        ).toEqual([
+            {
+                kind: ExprKind.EQUATION,
+                left: {
+                    kind: ExprKind.IDENTIFIER,
+                    value: 'kitty',
+                },
+                right: {
+                    kind: ExprKind.UNARY_EXPRESSION,
+                    operator: 'ln',
+                    argument: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'meow',
+                    },
+                },
+            } satisfies Equation,
+        ]);
+    });
+    test('1 = 2 EOF', () => {
+        expect(
+            parse([
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '1',
+                },
+                {
+                    type: TokenType.ASSIGN_OP,
+                    value: '=',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '2',
+                },
+                {
+                    type: TokenType.EOF,
+                    value: '',
+                },
+            ] satisfies Token[]),
+        ).toEqual([
+            {
+                kind: ExprKind.EQUATION,
+                left: {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 1,
+                },
+                right: {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 2,
+                },
+            } satisfies Equation,
+        ]);
+    });
+    test('1 = ; = 1 ; = EOF', () => {
+        expect(
+            parse([
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '1',
+                },
+                {
+                    type: TokenType.ASSIGN_OP,
+                    value: '=',
+                },
+                {
+                    type: TokenType.EOL,
+                    value: ';',
+                },
+                {
+                    type: TokenType.ASSIGN_OP,
+                    value: '=',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '1',
+                },
+                {
+                    type: TokenType.EOL,
+                    value: ';',
+                },
+                {
+                    type: TokenType.ASSIGN_OP,
+                    value: '=',
+                },
+                {
+                    type: TokenType.EOF,
+                    value: ';',
+                },
+            ] satisfies Token[]),
+        ).toEqual([undefined, undefined, undefined]);
     });
 });

@@ -1,4 +1,5 @@
-import { Expression, ExprKind } from './parser';
+import { TokenType } from './lexer';
+import { Equation, Expression, ExprKind } from './parser';
 
 export type Variable = number | Expression | undefined;
 export type Variables = Map<string, Variable>;
@@ -83,14 +84,43 @@ export function evalExpression(
     return undefined;
 }
 
+// TODO
+// e.g. pV=nRT -> solve for V -> V=nRT/p -> returns { left: Identifier V, right: Expression nRT/p }
+// exact interface still TBD
+function solve(equation: Equation, solveFor?: string): Equation {
+    throw new Error(
+        'not implemented yet, only direct assignment is supported, e.g. x=ln2',
+    );
+}
+
+function evalEquation(
+    equation: Equation,
+    variables: Variables = new Map(),
+): number | undefined {
+    const { left, right } = equation;
+    if (!left || !right) return;
+
+    if (left.kind === ExprKind.IDENTIFIER) {
+        variables.set(left.value, right);
+        return;
+    }
+
+    const result = solve(equation);
+    return evalEquation(result, variables);
+}
+
 export function evaluate(
-    expressions: Expression[],
+    program: (Expression | Equation)[],
     variables: Variables = new Map(),
 ): (number | undefined)[] {
     const results: (number | undefined)[] = [];
 
-    for (const expression of expressions) {
-        results.push(evalExpression(expression, variables));
+    for (const row of program) {
+        if (row.kind === ExprKind.EQUATION) {
+            results.push(evalEquation(row, variables));
+        } else {
+            results.push(evalExpression(row, variables));
+        }
     }
 
     return results;

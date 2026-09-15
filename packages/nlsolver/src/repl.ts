@@ -29,10 +29,11 @@ async function main() {
             console.log('-- Parser --');
             const program = parse(tokens);
             console.log(JSON.stringify(program, null, 2));
+            const evalResults = evaluate(program, variables);
             console.log('-- Variables --');
             console.log([...variables.keys()]);
             console.log('-- Eval --');
-            console.log(evaluate(program, variables));
+            console.log(evalResults);
         } catch (error) {
             console.error(error);
         }

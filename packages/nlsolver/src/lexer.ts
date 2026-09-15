@@ -7,7 +7,7 @@ export enum TokenType {
     PAREN_OPEN = 'PAREN_OPEN',
     PAREN_CLOSE = 'PAREN_CLOSE',
     IDENTIFIER = 'IDENTIFIER',
-    // ASSIGN_OP = 'ASSIGN_OP', // todo
+    ASSIGN_OP = 'ASSIGN_OP',
     COMMENT = 'COMMENT',
 }
 
@@ -41,6 +41,7 @@ function isIdentifier(value: string, next?: string): boolean {
         next === '\n' ||
         next === ';' ||
         next === ',' ||
+        next === '=' ||
         next === '#'
     );
 }
@@ -55,6 +56,9 @@ export function tokenize(data: string): Token[] {
         value = `${value}${current}`;
         let type: TokenType | null = null;
         switch (current) {
+            case '=':
+                type = TokenType.ASSIGN_OP;
+                break;
             case ';':
             case ',':
             case '\n':
