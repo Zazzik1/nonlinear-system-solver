@@ -1,17 +1,27 @@
 {
     "name": "@zazzik/nlsolver",
-    "private": true,
-    "version": "0.0.0",
-    "main": "index.js",
+    "version": "1.0.1",
+    "main": "dist/index.js",
     "scripts": {
-        "build": "rimraf dist && tsc",
+        "build": "rimraf dist && tsc -p tsconfig.build.json",
         "repl": "ts-node src/repl.ts",
         "test": "jest --verbose"
     },
+    "publishConfig": {
+        "access": "public"
+    },
+    "files": [
+        "dist"
+    ],
+    "bin": "./dist/repl.js",
     "keywords": [],
-    "author": "",
+    "author": "Zazzik1",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Zazzik1/nonlinear-system-solver.git"
+    },
     "license": "MIT",
-    "description": "",
+    "description": "A TypeScript-based numerical solver for systems of nonlinear equations with custom variable names.",
     "devDependencies": {
         "@types/jest": "^30.0.0",
         "@types/node": "^22.20.2",
@@ -21,7 +31,7 @@
         "ts-node": "^10.9.2",
         "typescript": "^6.0.3"
     },
-    "engines": {
+    "devEngines": {
         "node": "^24.21"
     }
 }
