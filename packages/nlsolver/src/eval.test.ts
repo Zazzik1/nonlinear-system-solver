@@ -1,5 +1,5 @@
 import { createVariables, evaluate, Variables } from './eval';
-import { Expression, ExprKind } from './parser';
+import { Equation, Expression, ExprKind } from './parser';
 
 describe('evaluate', () => {
     test('lnx + 1, x=1 -> 1', () => {
@@ -135,6 +135,48 @@ describe('evaluate', () => {
         expect(variables.get('v')).toEqual({
             kind: ExprKind.NUMERIC_LITERAL,
             value: -3,
+        } satisfies Expression);
+    });
+    test('111; x = -1; 333', () => {
+        const variables = new Map();
+        expect(variables.get('x')).toBe(undefined);
+        expect(
+            evaluate(
+                [
+                    {
+                        kind: ExprKind.NUMERIC_LITERAL,
+                        value: 111,
+                    },
+                    {
+                        kind: ExprKind.EQUATION,
+                        left: {
+                            kind: ExprKind.IDENTIFIER,
+                            value: 'x',
+                        },
+                        right: {
+                            kind: ExprKind.UNARY_EXPRESSION,
+                            operator: '-',
+                            argument: {
+                                kind: ExprKind.NUMERIC_LITERAL,
+                                value: 1,
+                            },
+                        },
+                    } satisfies Equation,
+                    {
+                        kind: ExprKind.NUMERIC_LITERAL,
+                        value: 333,
+                    },
+                ],
+                variables,
+            ),
+        ).toEqual([111, undefined, 333]);
+        expect(variables.get('x')).toEqual({
+            kind: ExprKind.UNARY_EXPRESSION,
+            operator: '-',
+            argument: {
+                kind: ExprKind.NUMERIC_LITERAL,
+                value: 1,
+            },
         } satisfies Expression);
     });
 });

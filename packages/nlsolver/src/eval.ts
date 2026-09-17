@@ -87,6 +87,7 @@ export function evalExpression(
 // TODO
 // e.g. pV=nRT -> solve for V -> V=nRT/p -> returns { left: Identifier V, right: Expression nRT/p }
 // exact interface still TBD
+// it can take variables as parameter and detect what variable is not defined and solve for this variable (if only 1 is missing), otherwise return undefined
 function solve(equation: Equation, solveFor?: string): Equation {
     throw new Error(
         'not implemented yet, only direct assignment is supported, e.g. x=ln2',

@@ -1081,4 +1081,46 @@ describe('parse', () => {
             ] satisfies Token[]),
         ).toEqual([undefined, undefined, undefined]);
     });
+    test('x = - 1 EOF', () => {
+        expect(
+            parse([
+                {
+                    type: TokenType.IDENTIFIER,
+                    value: 'x',
+                },
+                {
+                    type: TokenType.ASSIGN_OP,
+                    value: '=',
+                },
+                {
+                    type: TokenType.UNARY_OPERATOR,
+                    value: '-',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '1',
+                },
+                {
+                    type: TokenType.EOF,
+                    value: '',
+                },
+            ] satisfies Token[]),
+        ).toEqual([
+            {
+                kind: ExprKind.EQUATION,
+                left: {
+                    kind: ExprKind.IDENTIFIER,
+                    value: 'x',
+                },
+                right: {
+                    kind: ExprKind.UNARY_EXPRESSION,
+                    operator: '-',
+                    argument: {
+                        kind: ExprKind.NUMERIC_LITERAL,
+                        value: 1,
+                    },
+                },
+            } satisfies Equation,
+        ]);
+    });
 });

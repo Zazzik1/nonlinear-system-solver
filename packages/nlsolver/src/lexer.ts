@@ -77,6 +77,7 @@ export function tokenize(data: string): Token[] {
                     lastTokenType === TokenType.BINARY_OPERATOR ||
                     lastTokenType === TokenType.PAREN_OPEN ||
                     lastTokenType === TokenType.EOL ||
+                    lastTokenType === TokenType.ASSIGN_OP ||
                     tokens.length === 0
                 ) {
                     type = TokenType.UNARY_OPERATOR;
