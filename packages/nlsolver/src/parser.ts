@@ -49,51 +49,80 @@ function splitTokensByLines(tokens: Token[]): Token[][] {
     return result;
 }
 
-function parseBinary(tokens: Token[]): Expression | undefined {
-    const left = parseUnary(tokens);
-    if (!left) return undefined;
-
-    let operatorToken = tokens.at(0);
-
-    if (operatorToken?.type === TokenType.NUMERIC_LITERAL) {
-        throw new Error(`Unexpected token "${operatorToken.value}"`);
+function getBindingPower(operator: string) {
+    switch (operator) {
+        case '^':
+        case '%':
+            return 30;
+        case '*':
+        case '/':
+            return 20;
+        case '+':
+        case '-':
+            return 10;
+        default:
+            return 0;
     }
-
-    const isImplicitMultiplication =
-        operatorToken?.type === TokenType.IDENTIFIER || // 2 x
-        operatorToken?.type === TokenType.UNARY_OPERATOR || // 2 ln x
-        operatorToken?.type === TokenType.PAREN_OPEN; // 2 (x)
-
-    if (operatorToken?.type !== TokenType.BINARY_OPERATOR) {
-        if (isImplicitMultiplication) {
-            operatorToken = {
-                type: TokenType.BINARY_OPERATOR,
-                value: '*',
-            };
-        } else {
-            return left;
-        }
-    }
-
-    if (!isImplicitMultiplication) tokens.shift();
-
-    const right = parseBinary(tokens);
-    if (!right) return undefined;
-
-    return {
-        kind: ExprKind.BINARY_EXPRESSION,
-        operator: operatorToken.value,
-        left,
-        right,
-    };
 }
 
-// TODO: handle proper order of operations:
-// function parseAdditive(tokens: Token[]): Expression | undefined {}
-// function parseMultiplicative(tokens: Token[]): Expression | undefined {}
-// function parsePower(tokens: Token[]): Expression | undefined {}
+function parseBinary(
+    tokens: Token[],
+    minBp: number = 0,
+): Expression | undefined {
+    let left = parseUnary(tokens);
 
-// TODO: add option to declare variables when the second token in a line is "=", e.g. x=2, y=ln3, z=sinx
+    if (!left) return undefined;
+
+    while (true) {
+        let operatorToken = tokens.at(0);
+
+        if (operatorToken?.type === TokenType.NUMERIC_LITERAL) {
+            throw new Error(`Unexpected token "${operatorToken.value}"`);
+        }
+
+        const isImplicitMultiplication =
+            operatorToken?.type === TokenType.IDENTIFIER || // 2 x
+            operatorToken?.type === TokenType.UNARY_OPERATOR || // 2 ln x
+            operatorToken?.type === TokenType.PAREN_OPEN; // 2 (x)
+
+        if (operatorToken?.type !== TokenType.BINARY_OPERATOR) {
+            if (isImplicitMultiplication) {
+                operatorToken = {
+                    type: TokenType.BINARY_OPERATOR,
+                    value: '*',
+                };
+            } else {
+                break;
+            }
+        }
+
+        const operator = operatorToken.value;
+
+        const bindingPower = getBindingPower(operator);
+
+        if (bindingPower < minBp) {
+            // Pratt parsing
+            break;
+        }
+
+        if (!isImplicitMultiplication) {
+            tokens.shift();
+        }
+
+        const right = parseBinary(tokens, bindingPower + 1);
+
+        if (!right) return undefined;
+
+        left = {
+            kind: ExprKind.BINARY_EXPRESSION,
+            operator,
+            left,
+            right,
+        };
+    }
+
+    return left;
+}
 
 function parseUnary(tokens: Token[]): Expression | undefined {
     const operatorToken = tokens.at(0);

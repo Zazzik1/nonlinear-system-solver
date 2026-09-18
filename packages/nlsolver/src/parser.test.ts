@@ -304,8 +304,7 @@ describe('parse', () => {
             },
         ] satisfies Expression[]);
     });
-    // todo
-    test.skip('2 * 3 + 4 EOF', () => {
+    test('2 * 3 + 4 EOF', () => {
         expect(
             parse([
                 {
@@ -356,8 +355,7 @@ describe('parse', () => {
             },
         ] satisfies Expression[]);
     });
-    // todo
-    test.skip('x ^ 2 + 2 x - 1 EOF', () => {
+    test('x ^ 2 + 2 x - 1 EOF', () => {
         expect(
             parse([
                 {
@@ -371,6 +369,18 @@ describe('parse', () => {
                 {
                     type: TokenType.NUMERIC_LITERAL,
                     value: '2',
+                },
+                {
+                    type: TokenType.BINARY_OPERATOR,
+                    value: '+',
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '2',
+                },
+                {
+                    type: TokenType.IDENTIFIER,
+                    value: 'x',
                 },
                 {
                     type: TokenType.BINARY_OPERATOR,
@@ -388,23 +398,23 @@ describe('parse', () => {
         ).toEqual([
             {
                 kind: ExprKind.BINARY_EXPRESSION,
-                operator: '+',
+                operator: '-',
                 left: {
                     kind: ExprKind.BINARY_EXPRESSION,
-                    operator: '^',
+                    operator: '+',
                     left: {
-                        kind: ExprKind.IDENTIFIER,
-                        value: 'x',
+                        kind: ExprKind.BINARY_EXPRESSION,
+                        operator: '^',
+                        left: {
+                            kind: ExprKind.IDENTIFIER,
+                            value: 'x',
+                        },
+                        right: {
+                            kind: ExprKind.NUMERIC_LITERAL,
+                            value: 2,
+                        },
                     },
                     right: {
-                        kind: ExprKind.NUMERIC_LITERAL,
-                        value: 2,
-                    },
-                },
-                right: {
-                    kind: ExprKind.BINARY_EXPRESSION,
-                    operator: '-',
-                    left: {
                         kind: ExprKind.BINARY_EXPRESSION,
                         operator: '*',
                         left: {
@@ -416,10 +426,10 @@ describe('parse', () => {
                             value: 'x',
                         },
                     },
-                    right: {
-                        kind: ExprKind.NUMERIC_LITERAL,
-                        value: 1,
-                    },
+                },
+                right: {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 1,
                 },
             },
         ] satisfies Expression[]);
@@ -681,20 +691,20 @@ describe('parse', () => {
                 kind: ExprKind.BINARY_EXPRESSION,
                 operator: '+',
                 left: {
-                    kind: ExprKind.NUMERIC_LITERAL,
-                    value: 1,
-                },
-                right: {
                     kind: ExprKind.BINARY_EXPRESSION,
                     operator: '+',
                     left: {
                         kind: ExprKind.NUMERIC_LITERAL,
-                        value: 2,
+                        value: 1,
                     },
                     right: {
                         kind: ExprKind.NUMERIC_LITERAL,
-                        value: 3,
+                        value: 2,
                     },
+                },
+                right: {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 3,
                 },
             },
         ] satisfies Expression[]);
@@ -748,13 +758,13 @@ describe('parse', () => {
                 kind: ExprKind.BINARY_EXPRESSION,
                 operator: '+',
                 left: {
-                    kind: ExprKind.NUMERIC_LITERAL,
-                    value: 1,
-                },
-                right: {
                     kind: ExprKind.BINARY_EXPRESSION,
                     operator: '+',
                     left: {
+                        kind: ExprKind.NUMERIC_LITERAL,
+                        value: 1,
+                    },
+                    right: {
                         kind: ExprKind.BINARY_EXPRESSION,
                         operator: '+',
                         left: {
@@ -766,10 +776,10 @@ describe('parse', () => {
                             value: 3,
                         },
                     },
-                    right: {
-                        kind: ExprKind.NUMERIC_LITERAL,
-                        value: 4,
-                    },
+                },
+                right: {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 4,
                 },
             },
         ] satisfies Expression[]);
@@ -823,20 +833,20 @@ describe('parse', () => {
                 kind: ExprKind.BINARY_EXPRESSION,
                 operator: '+',
                 left: {
-                    kind: ExprKind.NUMERIC_LITERAL,
-                    value: 1,
-                },
-                right: {
                     kind: ExprKind.BINARY_EXPRESSION,
                     operator: '+',
                     left: {
                         kind: ExprKind.NUMERIC_LITERAL,
-                        value: 2,
+                        value: 1,
                     },
                     right: {
                         kind: ExprKind.NUMERIC_LITERAL,
-                        value: 3,
+                        value: 2,
                     },
+                },
+                right: {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 3,
                 },
             },
         ] satisfies Expression[]);
