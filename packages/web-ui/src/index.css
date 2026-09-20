@@ -1,6 +1,47 @@
+:root {
+    --color-bg-primary: #000814;
+    --color-bg-secondary: #001327;
+    --color-accent: #99d6ea;
+    --color-secondary: #fdf8e1;
+    --color-primary: #f9dc5c;
+    --color-text: #fffdf7;
+}
+
 body {
     margin: 0;
-    min-height: 100vh;
-    background-color: rgb(19, 15, 37);
-    color: white;
+    background-color: var(--color-bg-primary);
+    color: var(--color-text);
+    font-family: monospace;
+    font-size: 16px;
+}
+
+button {
+    background-color: var(--color-bg-secondary);
+    color: var(--color-accent);
+    border: 1px solid var(--color-accent);
+    padding: 4px 12px;
+    font-size: 20px;
+    outline: none;
+    cursor: pointer;
+}
+button:hover,
+button:focus {
+    background-color: var(--color-bg-primary);
+    color: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+textarea {
+    background-color: var(--color-bg-secondary);
+    border: none;
+    border-left: 1px solid var(--color-accent);
+    border-right: 1px solid var(--color-accent);
+    color: var(--color-accent);
+    font-size: 20px;
+    font-family: monospace;
+    outline: none;
+    resize: vertical;
+    padding: 8px 32px;
+    box-sizing: border-box;
+    width: max(50%, 350px);
 }
