@@ -4,7 +4,8 @@
     "version": "0.0.0",
     "main": "index.js",
     "scripts": {
-        "test": "echo N/A"
+        "test": "echo N/A",
+        "build": "echo N/A"
     },
     "keywords": [],
     "author": "",
