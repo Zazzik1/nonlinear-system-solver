@@ -13,7 +13,9 @@
     "files": [
         "dist"
     ],
-    "bin": "./dist/repl.js",
+    "bin": {
+        "nlsolver": "dist/repl.js"
+    },
     "keywords": [],
     "author": "Zazzik1",
     "repository": {
