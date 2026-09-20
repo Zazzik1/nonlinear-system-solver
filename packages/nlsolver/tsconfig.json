@@ -2,12 +2,14 @@
     "compilerOptions": {
         "rootDir": "./src",
         "outDir": "./dist",
-        "module": "nodenext",
+        "module": "esnext",
+        "moduleResolution": "bundler",
         "target": "esnext",
         "types": ["node", "jest"],
         "declaration": true,
         "strict": true,
         "isolatedModules": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "esModuleInterop": true
     }
 }

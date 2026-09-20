@@ -1,9 +1,9 @@
-#!/usr/bin/env node
 import readline from 'readline';
 import { tokenize } from './lexer';
 import { parse } from './parser';
 import { createVariables, evaluate } from './eval';
 import { GLOBALS } from './constants';
+import { version } from '../package.json';
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -19,7 +19,7 @@ const prompt = (question: string): Promise<string> => {
 };
 
 async function main() {
-    console.log('REPL');
+    console.log(`REPL v${version}`);
     const variables = createVariables(GLOBALS);
     while (true) {
         const input = await prompt('> ');
