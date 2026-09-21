@@ -5,43 +5,122 @@
     --color-secondary: #fdf8e1;
     --color-primary: #f9dc5c;
     --color-text: #fffdf7;
+    --padding: 8px;
+    --padding-sm: calc(var(--padding) / 2);
+    --padding-lg: calc(var(--padding) * 2);
+    --font-size: 14px;
+    --font-size-sm: 0.8rem;
+    --font-size-lg: 16px;
+
+    --border-color: var(--color-accent);
+    --border-color-subtle: #335560;
+}
+
+* {
+    box-sizing: border-box;
 }
 
 body {
     margin: 0;
-    background-color: var(--color-bg-primary);
     color: var(--color-text);
     font-family: monospace;
-    font-size: 16px;
+    font-size: var(--font-size);
+    background-color: #06111d;
+    display: grid;
+    grid-template-columns: minmax(0, 1300px);
+    justify-content: center;
+}
+
+.main {
+    background-color: var(--color-bg-primary);
+    min-height: 100vh;
+    border: 1px solid var(--border-color-subtle);
+    display: flex;
+    flex-direction: column;
+    position: relative;
 }
 
 button {
-    background-color: var(--color-bg-secondary);
+    font-family: monospace;
+    background-color: var(--color-bg-primary);
     color: var(--color-accent);
-    border: 1px solid var(--color-accent);
-    padding: 4px 12px;
-    font-size: 20px;
+    border: 1px solid var(--border-color-subtle);
+    padding: var(--padding-sm) var(--padding);
+    font-size: var(--font-size);
     outline: none;
     cursor: pointer;
 }
 button:hover,
 button:focus {
-    background-color: var(--color-bg-primary);
-    color: var(--color-primary);
-    border-color: var(--color-primary);
+    color: var(--color-secondary);
+    border-color: var(--color-secondary);
+    background-color: var(--color-bg-secondary);
 }
 
 textarea {
-    background-color: var(--color-bg-secondary);
-    border: none;
-    border-left: 1px solid var(--color-accent);
-    border-right: 1px solid var(--color-accent);
-    color: var(--color-accent);
-    font-size: 20px;
+    background-color: var(--color-bg-primary);
+    border: 1px solid transparent;
+    color: var(--color-text);
+    /* to avoid auto zoom on mobile devices: */
+    font-size: 16px;
     font-family: monospace;
     outline: none;
     resize: vertical;
-    padding: 8px 32px;
-    box-sizing: border-box;
-    width: max(50%, 350px);
+    padding: var(--padding);
+    width: 100%;
+}
+textarea::placeholder {
+    color: var(--color-accent);
+    font-style: italic;
+}
+textarea:hover,
+textarea:focus {
+    border: 1px solid var(--color-secondary);
+}
+
+.token {
+    border: 1px solid transparent;
+    border-bottom: 1px solid var(--border-color-subtle);
+    padding: var(--padding);
+    display: flex;
+    justify-content: space-between;
+    gap: var(--padding-lg);
+}
+.token > :first-child {
+    color: var(--color-text);
+    transition: color 300ms ease;
+}
+.token > :last-child {
+    color: var(--color-accent);
+    transition: color 300ms ease;
+    overflow: hidden;
+}
+.tokens:has(> .token:hover) > .token > * {
+    color: var(--border-color-subtle);
+}
+.tokens > .token:hover {
+    border-color: var(--color-secondary);
+}
+.tokens > .token:hover > :first-child {
+    color: var(--color-text);
+}
+.tokens > .token:hover > :last-child {
+    color: var(--color-accent);
+}
+
+.results {
+    position: absolute;
+    top: var(--padding);
+    right: var(--padding);
+    color: var(--color-accent);
+    font-size: 16px;
+    text-align: right;
+}
+
+a {
+    color: var(--color-accent);
+    text-decoration: none;
+}
+a:hover {
+    color: var(--color-secondary);
 }
