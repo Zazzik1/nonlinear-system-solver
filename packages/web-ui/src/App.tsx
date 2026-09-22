@@ -7,12 +7,7 @@ import {
 } from '@zazzik/nlsolver';
 import { useEffect, useRef, useState } from 'react';
 import { FaGithub, FaNpm } from 'react-icons/fa';
-
-const DEFAULT_DATA = `x = sin(PI/2) # hello
-x
-meow = x
-sinx/x
-`;
+import { DEFAULT_DATA } from './constants';
 
 function App() {
     const [data, setData] = useState(
@@ -87,21 +82,11 @@ function App() {
             <div
                 style={{
                     width: '100%',
-                    borderTop: '1px solid var(--border-color-subtle)',
-                    borderBottom: '1px solid var(--border-color-subtle)',
+                    borderTop: '1px solid var(--color-border-muted)',
+                    borderBottom: '1px solid var(--color-border-muted)',
                 }}
             >
-                <div
-                    style={{
-                        fontSize: 'var(--font-size-lg)',
-                        padding: 'var(--padding-lg) var(--padding)',
-                        color: 'var(--color-primary)',
-                        backgroundColor: 'var(--color-bg-secondary)',
-                        borderBottom: '1px solid var(--border-color-subtle)',
-                    }}
-                >
-                    Variables
-                </div>
+                <div className="header-box">Variables</div>
                 <div
                     style={{
                         display: 'flex',
@@ -140,46 +125,26 @@ function App() {
                         flexGrow: 1,
                     }}
                 >
-                    <div
-                        style={{
-                            fontSize: 'var(--font-size-lg)',
-                            padding: 'var(--padding-lg) var(--padding)',
-                            color: 'var(--color-primary)',
-                            backgroundColor: 'var(--color-bg-secondary)',
-                            borderBottom:
-                                '1px solid var(--border-color-subtle)',
-                        }}
-                    >
-                        Lexer
-                    </div>
+                    <div className="header-box">Lexer</div>
                     <div className="tokens">
                         {(tokens || []).map((token, idx) => (
                             <div key={idx} className="token">
                                 <div>{token.type}</div>
-                                <div>{token.value}</div>
+                                <div>
+                                    {JSON.stringify(token.value).slice(1, -1)}
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
                 <div
                     style={{
-                        borderLeft: '1px solid var(--border-color-subtle)',
+                        borderLeft: '1px solid var(--color-border-muted)',
                         flexGrow: 1,
                         overflow: 'hidden',
                     }}
                 >
-                    <div
-                        style={{
-                            fontSize: 'var(--font-size-lg)',
-                            padding: 'var(--padding-lg) var(--padding)',
-                            color: 'var(--color-primary)',
-                            backgroundColor: 'var(--color-bg-secondary)',
-                            borderBottom:
-                                '1px solid var(--border-color-subtle)',
-                        }}
-                    >
-                        Parser
-                    </div>
+                    <div className="header-box">Parser</div>
                     <pre
                         style={{
                             padding: 'var(--padding)',
@@ -190,28 +155,9 @@ function App() {
                     </pre>
                 </div>
             </div>
-            <div
-                style={{
-                    borderTop: '1px solid var(--border-color-subtle)',
-                    padding: 'var(--padding)',
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                }}
-            >
-                <div
-                    style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        justifyContent: 'end',
-                        alignItems: 'center',
-                        gap: 'var(--padding)',
-                        color: 'var(--color-accent)',
-                    }}
-                >
+            <div className="footer">
+                <div>
                     <button
-                        style={{ fontSize: 'var(--font-size-sm)' }}
                         onClick={() => {
                             setData('');
                         }}
@@ -219,7 +165,6 @@ function App() {
                         Clear
                     </button>
                     <button
-                        style={{ fontSize: 'var(--font-size-sm)' }}
                         onClick={() => {
                             localStorage.removeItem('data');
                             setData(DEFAULT_DATA);
@@ -228,19 +173,8 @@ function App() {
                         Example
                     </button>
                 </div>
-                <div
-                    style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        justifyContent: 'end',
-                        alignItems: 'center',
-                        gap: 'var(--padding-lg)',
-                        color: 'var(--color-accent)',
-                    }}
-                >
-                    <span style={{ fontSize: 'var(--font-size-sm)' }}>
-                        {__COMMIT_HASH__}
-                    </span>
+                <div>
+                    <span>{__COMMIT_HASH__}</span>
                     <a
                         href="https://www.npmjs.com/package/@zazzik/nlsolver"
                         target="_blank"
