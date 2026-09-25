@@ -717,4 +717,41 @@ describe('parse', () => {
             } satisfies Equation,
         ]);
     });
+    test('x = 1 ; y = 2 EOF', () => {
+        expect(
+            parse([
+                token(IDENTIFIER, 'x'),
+                token(ASSIGN_OP, '='),
+                token(NUMERIC_LITERAL, '1'),
+                token(EOL, ';'),
+                token(IDENTIFIER, 'y'),
+                token(ASSIGN_OP, '='),
+                token(NUMERIC_LITERAL, '2'),
+                token(EOF, ''),
+            ] satisfies Token[]),
+        ).toEqual([
+            {
+                kind: ExprKind.EQUATION,
+                left: {
+                    kind: ExprKind.IDENTIFIER,
+                    value: 'x',
+                },
+                right: {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 1,
+                },
+            } satisfies Equation,
+            {
+                kind: ExprKind.EQUATION,
+                left: {
+                    kind: ExprKind.IDENTIFIER,
+                    value: 'y',
+                },
+                right: {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 2,
+                },
+            } satisfies Equation,
+        ]);
+    });
 });
