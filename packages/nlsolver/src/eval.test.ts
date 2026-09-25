@@ -1,4 +1,5 @@
-import { createVariables, evaluate, Variables } from './eval';
+import { EvaluationError } from './errors';
+import { createVariables, evaluate } from './eval';
 import { Equation, Expression, ExprKind } from './parser';
 
 describe('evaluate', () => {
@@ -50,14 +51,23 @@ describe('evaluate', () => {
     });
     test('__proto__, toString, constructor -> must be undefined', () => {
         for (const name of ['__proto__', 'toString', 'constructor']) {
-            expect(() =>
+            try {
                 evaluate([
                     {
                         kind: ExprKind.IDENTIFIER,
                         value: name,
                     },
-                ] satisfies Expression[]),
-            ).toThrow(`Variable "${name}" is not defined`);
+                ] satisfies Expression[]);
+                throw new Error('Expected evaluate() to throw');
+            } catch (error) {
+                expect(error).toBeInstanceOf(EvaluationError);
+                expect(error).toMatchObject({
+                    message: `Variable "${name}" is not defined`,
+                    code: 'UNDEFINED_VARIABLE',
+                    // line: 1,
+                    // column: 1,
+                });
+            }
         }
     });
     test('x = ln2 -> undefined, sets variable x to Expression', () => {

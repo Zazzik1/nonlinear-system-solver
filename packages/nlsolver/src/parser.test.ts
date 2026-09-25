@@ -1,3 +1,4 @@
+import { ParseError } from './errors';
 import { Token, TokenType } from './lexer';
 import { Equation, Expression, ExprKind, parse } from './parser';
 
@@ -676,19 +677,98 @@ describe('parse', () => {
             } satisfies Equation,
         ]);
     });
-    test('1 = ; = 1 ; = EOF', () => {
-        expect(
+    test("1 = ; = 1 ; = EOF -> missing an expression after '=' error", () => {
+        try {
             parse([
                 token(NUMERIC_LITERAL, '1'),
-                token(ASSIGN_OP, '='),
+                {
+                    type: ASSIGN_OP,
+                    value: '=',
+
+                    start: 1,
+                    end: 2,
+                    line: 1,
+                    column: 2,
+                },
                 token(EOL, ';'),
                 token(ASSIGN_OP, '='),
                 token(NUMERIC_LITERAL, '1'),
                 token(EOL, ';'),
                 token(ASSIGN_OP, '='),
-                token(EOF, ';'),
-            ] satisfies Token[]),
-        ).toEqual([undefined, undefined, undefined]);
+                token(EOF, ''),
+            ] satisfies Token[]);
+            throw new Error('Expected parse() to throw');
+        } catch (error) {
+            expect(error).toBeInstanceOf(ParseError);
+            expect(error).toMatchObject({
+                message: "Expected an expression after '='",
+                code: 'MISSING_RIGHT_HAND_SIDE',
+                line: 1,
+                column: 2,
+            });
+        }
+    });
+    test("= 1 ; 1 = ; = EOF -> missing an expression before '=' error", () => {
+        try {
+            parse([
+                {
+                    type: ASSIGN_OP,
+                    value: '=',
+
+                    start: 0,
+                    end: 1,
+                    line: 1,
+                    column: 1,
+                },
+                token(NUMERIC_LITERAL, '1'),
+                token(EOL, ';'),
+                token(NUMERIC_LITERAL, '1'),
+                token(ASSIGN_OP, '='),
+                token(EOL, ';'),
+                token(ASSIGN_OP, '='),
+                token(EOF, ''),
+            ] satisfies Token[]);
+            throw new Error('Expected parse() to throw');
+        } catch (error) {
+            expect(error).toBeInstanceOf(ParseError);
+            expect(error).toMatchObject({
+                message: "Expected an expression before '='",
+                code: 'MISSING_LEFT_HAND_SIDE',
+                line: 1,
+                column: 1,
+            });
+        }
+    });
+    test("= ; = 1 ; 1 = EOF -> missing an expression before '=' error", () => {
+        try {
+            parse([
+                {
+                    type: ASSIGN_OP,
+                    value: '=',
+
+                    start: 0,
+                    end: 1,
+                    line: 1,
+                    column: 1,
+                },
+                token(EOL, ';'),
+                token(ASSIGN_OP, '='),
+                token(NUMERIC_LITERAL, '1'),
+                token(EOL, ';'),
+                token(NUMERIC_LITERAL, '1'),
+                token(ASSIGN_OP, '='),
+                token(EOF, ''),
+            ] satisfies Token[]);
+            throw new Error('Expected parse() to throw');
+        } catch (error) {
+            expect(error).toBeInstanceOf(ParseError);
+            expect(error).toMatchObject({
+                message: "Expected an expression before '='",
+                code: 'MISSING_LEFT_HAND_SIDE',
+                line: 1,
+                column: 1,
+            });
+        }
     });
     test('x = - 1 EOF', () => {
         expect(

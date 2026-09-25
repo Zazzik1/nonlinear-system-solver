@@ -8,3 +8,4 @@ export {
     type Variables,
 } from './eval';
 export { GLOBALS } from './constants';
+export { EvaluationError, ParseError } from './errors';

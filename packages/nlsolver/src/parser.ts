@@ -1,3 +1,4 @@
+import { ParseError } from './errors';
 import { Token, TokenType } from './lexer';
 
 export enum ExprKind {
@@ -77,7 +78,11 @@ function parseBinary(
         let operatorToken = tokens.at(0);
 
         if (operatorToken?.type === TokenType.NUMERIC_LITERAL) {
-            throw new Error(`Unexpected token "${operatorToken.value}"`);
+            throw new ParseError(`Unexpected token '${operatorToken.value}'`, {
+                code: 'UNEXPECTED_TOKEN',
+                line: operatorToken.line,
+                column: operatorToken.column,
+            });
         }
 
         const isImplicitMultiplication =
@@ -155,7 +160,11 @@ function parsePrimary(tokens: Token[]): Expression | undefined {
         const contents = parseBinary(tokens);
         const parenCloseToken = tokens.shift();
         if (parenCloseToken?.type !== TokenType.PAREN_CLOSE) {
-            throw new Error('Missing token: )');
+            throw new ParseError("Expected ')'", {
+                code: 'EXPECTED_CLOSING_PAREN',
+                line: parenCloseToken?.line ?? token.line, // is it ok?
+                column: parenCloseToken?.column ?? token.column,
+            });
         }
         return contents;
     }
@@ -187,7 +196,26 @@ export function parseEquation(
     const eqTokenIdx = tokens.indexOf(eqToken);
     const left = parseBinary(tokens.slice(0, eqTokenIdx));
     const right = parseBinary(tokens.slice(eqTokenIdx + 1, -1));
-    if (!left || !right) return;
+    if (left == null) {
+        throw new ParseError(
+            `Expected an expression before '${eqToken.value}'`,
+            {
+                code: 'MISSING_LEFT_HAND_SIDE',
+                line: eqToken.line,
+                column: eqToken.column,
+            },
+        );
+    }
+    if (right == null) {
+        throw new ParseError(
+            `Expected an expression after '${eqToken.value}'`,
+            {
+                code: 'MISSING_RIGHT_HAND_SIDE',
+                line: eqToken.line,
+                column: eqToken.column,
+            },
+        );
+    }
     return {
         kind: ExprKind.EQUATION,
         left,

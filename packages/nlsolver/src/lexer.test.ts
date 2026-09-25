@@ -803,8 +803,8 @@ describe('tokenize', () => {
             },
         ] satisfies Token[]);
     });
-    test('-1; -2, -3\n-4;    -5', () => {
-        expect(tokenize('-1; -2, -3\n-4;    -5')).toEqual([
+    test('-1\n -2, -3;-4\n    -5', () => {
+        expect(tokenize('-1\n -2, -3;-4\n    -5')).toEqual([
             {
                 type: TokenType.UNARY_OPERATOR,
                 value: '-',
@@ -825,7 +825,7 @@ describe('tokenize', () => {
             },
             {
                 type: TokenType.EOL,
-                value: ';',
+                value: '\n',
 
                 start: 2,
                 end: 3,
@@ -865,8 +865,8 @@ describe('tokenize', () => {
 
                 start: 8,
                 end: 9,
-                line: 3,
-                column: 2,
+                line: 2,
+                column: 6,
             },
             {
                 type: TokenType.NUMERIC_LITERAL,
@@ -874,17 +874,17 @@ describe('tokenize', () => {
 
                 start: 9,
                 end: 10,
-                line: 3,
-                column: 3,
+                line: 2,
+                column: 7,
             },
             {
                 type: TokenType.EOL,
-                value: '\n',
+                value: ';',
 
                 start: 10,
                 end: 11,
-                line: 3,
-                column: 4,
+                line: 2,
+                column: 8,
             },
             {
                 type: TokenType.UNARY_OPERATOR,
@@ -892,8 +892,8 @@ describe('tokenize', () => {
 
                 start: 11,
                 end: 12,
-                line: 4,
-                column: 1,
+                line: 2,
+                column: 9,
             },
             {
                 type: TokenType.NUMERIC_LITERAL,
@@ -901,17 +901,17 @@ describe('tokenize', () => {
 
                 start: 12,
                 end: 13,
-                line: 4,
-                column: 2,
+                line: 2,
+                column: 10,
             },
             {
                 type: TokenType.EOL,
-                value: ';',
+                value: '\n',
 
                 start: 13,
                 end: 14,
-                line: 4,
-                column: 3,
+                line: 2,
+                column: 11,
             },
             {
                 type: TokenType.UNARY_OPERATOR,
@@ -919,7 +919,7 @@ describe('tokenize', () => {
 
                 start: 18,
                 end: 19,
-                line: 5,
+                line: 3,
                 column: 5,
             },
             {
@@ -928,7 +928,7 @@ describe('tokenize', () => {
 
                 start: 19,
                 end: 20,
-                line: 5,
+                line: 3,
                 column: 6,
             },
             {
@@ -937,7 +937,7 @@ describe('tokenize', () => {
 
                 start: 20,
                 end: 20,
-                line: 5,
+                line: 3,
                 column: 7,
             },
         ] satisfies Token[]);
@@ -1125,8 +1125,8 @@ describe('tokenize', () => {
             },
         ] satisfies Token[]);
     });
-    test('k$tty123_@   ;   -1', () => {
-        expect(tokenize('k$tty123_@   ;   -1')).toEqual([
+    test('k$tty123_@   \n   -1', () => {
+        expect(tokenize('k$tty123_@   \n   -1')).toEqual([
             {
                 type: TokenType.IDENTIFIER,
                 value: 'k$tty123_@',
@@ -1138,7 +1138,7 @@ describe('tokenize', () => {
             },
             {
                 type: TokenType.EOL,
-                value: ';',
+                value: '\n',
 
                 start: 13,
                 end: 14,
@@ -1174,8 +1174,8 @@ describe('tokenize', () => {
             },
         ] satisfies Token[]);
     });
-    test('1 + 2 # + 3 ; 4 ; 5 #meow', () => {
-        expect(tokenize('1 + 2 # + 3 ; 4 ; 5 #meow')).toEqual([
+    test('1 + 2 # + 3 \n 4 \n 5 #meow', () => {
+        expect(tokenize('1 + 2 # + 3 \n 4 \n 5 #meow')).toEqual([
             {
                 type: TokenType.NUMERIC_LITERAL,
                 value: '1',
@@ -1214,7 +1214,7 @@ describe('tokenize', () => {
             },
             {
                 type: TokenType.EOL,
-                value: ';',
+                value: '\n',
 
                 start: 12,
                 end: 13,
@@ -1232,7 +1232,7 @@ describe('tokenize', () => {
             },
             {
                 type: TokenType.EOL,
-                value: ';',
+                value: '\n',
 
                 start: 16,
                 end: 17,
@@ -1388,11 +1388,11 @@ describe('tokenize', () => {
             },
         ] satisfies Token[]);
     });
-    test(';', () => {
-        expect(tokenize(';')).toEqual([
+    test('\n', () => {
+        expect(tokenize('\n')).toEqual([
             {
                 type: TokenType.EOL,
-                value: ';',
+                value: '\n',
 
                 start: 0,
                 end: 1,
@@ -1410,11 +1410,11 @@ describe('tokenize', () => {
             },
         ] satisfies Token[]);
     });
-    test(';1', () => {
-        expect(tokenize(';1')).toEqual([
+    test('\n1 -> increments `line` property', () => {
+        expect(tokenize('\n1')).toEqual([
             {
                 type: TokenType.EOL,
-                value: ';',
+                value: '\n',
 
                 start: 0,
                 end: 1,
@@ -1441,4 +1441,142 @@ describe('tokenize', () => {
             },
         ] satisfies Token[]);
     });
+    test.each([';', ','])(
+        '%s1 -> does not increment `line` property',
+        (value) => {
+            expect(tokenize(`${value}1`)).toEqual([
+                {
+                    type: TokenType.EOL,
+                    value: value,
+
+                    start: 0,
+                    end: 1,
+                    line: 1,
+                    column: 1,
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: '1',
+
+                    start: 1,
+                    end: 2,
+                    line: 1,
+                    column: 2,
+                },
+                {
+                    type: TokenType.EOF,
+                    value: '',
+
+                    start: 2,
+                    end: 2,
+                    line: 1,
+                    column: 3,
+                },
+            ] satisfies Token[]);
+        },
+    );
+    test.each([
+        'ln',
+        'asin',
+        'acos',
+        'atan',
+        'sin',
+        'cos',
+        'tan',
+        'sqrt',
+        'sign',
+    ])('%s(x) -> unary operator', (operator: string) => {
+        expect(tokenize(`${operator}(x)`)).toEqual([
+            {
+                type: TokenType.UNARY_OPERATOR,
+                value: operator,
+
+                start: 0,
+                end: operator.length,
+                line: 1,
+                column: 1,
+            },
+            {
+                type: TokenType.PAREN_OPEN,
+                value: '(',
+
+                start: operator.length,
+                end: operator.length + 1,
+                line: 1,
+                column: operator.length + 1,
+            },
+            {
+                type: TokenType.IDENTIFIER,
+                value: 'x',
+
+                start: operator.length + 1,
+                end: operator.length + 2,
+                line: 1,
+                column: operator.length + 2,
+            },
+            {
+                type: TokenType.PAREN_CLOSE,
+                value: ')',
+
+                start: operator.length + 2,
+                end: operator.length + 3,
+                line: 1,
+                column: operator.length + 3,
+            },
+            {
+                type: TokenType.EOF,
+                value: '',
+
+                start: operator.length + 3,
+                end: operator.length + 3,
+                line: 1,
+                column: operator.length + 4,
+            },
+        ] satisfies Token[]);
+    });
+    test.each(['+', '*', '/', '%', '^', '-'])(
+        '222%s333 -> binary operator',
+        (operator: string) => {
+            const a = '222';
+            const b = '333';
+            expect(tokenize(`${a}${operator}${b}`)).toEqual([
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: a,
+
+                    start: 0,
+                    end: a.length,
+                    line: 1,
+                    column: 1,
+                },
+                {
+                    type: TokenType.BINARY_OPERATOR,
+                    value: operator,
+
+                    start: a.length,
+                    end: a.length + operator.length,
+                    line: 1,
+                    column: a.length + operator.length,
+                },
+                {
+                    type: TokenType.NUMERIC_LITERAL,
+                    value: b,
+
+                    start: a.length + operator.length,
+                    end: a.length + operator.length + b.length,
+                    line: 1,
+                    column: a.length + operator.length + 1,
+                },
+                {
+                    type: TokenType.EOF,
+                    value: '',
+
+                    start: a.length + operator.length + b.length,
+                    end: a.length + operator.length + b.length,
+                    line: 1,
+                    column: a.length + operator.length + b.length + 1,
+                },
+            ] satisfies Token[]);
+        },
+    );
 });

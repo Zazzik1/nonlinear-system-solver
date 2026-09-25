@@ -76,7 +76,9 @@ export function tokenize(data: string): Token[] {
             case ',':
             case '\n':
                 type = TokenType.EOL;
-                incrementLine = true;
+                if (current === '\n') {
+                    incrementLine = true;
+                }
                 break;
             case '+':
             case '*':
@@ -191,20 +193,24 @@ export function tokenize(data: string): Token[] {
             column = 0;
             incrementLine = false;
         }
-        if (type === TokenType.EOL) {
+        if (type === TokenType.EOL && value === '\n') {
             column = 0;
         }
         if (type === TokenType.COMMENT) {
             column++;
         }
     }
+    const prevToken = tokens.at(-1);
     tokens.push({
         type: TokenType.EOF,
         value: '',
         start: end + 1,
         end: end + 1,
         line,
-        column: tokens.at(-1)?.type === TokenType.EOL ? 1 : column + 1,
+        column:
+            prevToken?.type === TokenType.EOL && prevToken?.value === '\n'
+                ? 1
+                : column + 1,
     } satisfies Token);
     return tokens;
 }

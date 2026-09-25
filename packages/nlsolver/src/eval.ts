@@ -1,4 +1,4 @@
-import { TokenType } from './lexer';
+import { EvaluationError } from './errors';
 import { Equation, Expression, ExprKind } from './parser';
 
 export type Variable = number | Expression | undefined;
@@ -19,18 +19,32 @@ export function evalExpression(
     if (expr.kind === ExprKind.IDENTIFIER) {
         const variable = variables.get(expr.value);
         if (variable == null) {
-            throw new Error(`Variable "${expr.value}" is not defined`);
+            throw new EvaluationError(
+                `Variable "${expr.value}" is not defined`,
+                {
+                    code: 'UNDEFINED_VARIABLE',
+                    // TODO: store this information during parsing or store references to related tokens:
+                    // line: 0,
+                    // column: 0,
+                },
+            );
         }
         if (typeof variable === 'number') return variable;
         return evalExpression(variable, variables);
     }
     if (expr.kind === ExprKind.BINARY_EXPRESSION) {
         if (expr.left == null || expr.right == null) {
-            throw new Error('Eval error');
+            throw new EvaluationError('Expected an expression', {
+                code: 'EXPECTED_EXPRESSION',
+            });
         }
         const a = evalExpression(expr.left, variables);
         const b = evalExpression(expr.right, variables);
-        if (a == null || b == null) throw new Error('Eval error');
+        if (a == null || b == null) {
+            throw new EvaluationError('Expected an expression', {
+                code: 'EXPECTED_EXPRESSION',
+            });
+        }
         switch (expr.operator) {
             case '+':
                 return a + b;
@@ -45,15 +59,26 @@ export function evalExpression(
             case '%':
                 return a % b;
             default:
-                throw new Error(
-                    `eval error: unknown operator "${expr.operator}"`,
+                throw new EvaluationError(
+                    `Unknown operator '${expr.operator}'`,
+                    {
+                        code: 'UNKNOWN_OPERATOR',
+                    },
                 );
         }
     }
     if (expr.kind === ExprKind.UNARY_EXPRESSION) {
-        if (expr.argument == null) throw new Error(`Eval error`);
+        if (expr.argument == null) {
+            throw new EvaluationError('Expected an expression', {
+                code: 'EXPECTED_EXPRESSION',
+            });
+        }
         const argument = evalExpression(expr.argument, variables);
-        if (argument == null) throw new Error('Eval error');
+        if (argument == null) {
+            throw new EvaluationError('Expected an expression', {
+                code: 'EXPECTED_EXPRESSION',
+            });
+        }
         switch (expr.operator) {
             case '-':
                 return -argument;
@@ -76,8 +101,9 @@ export function evalExpression(
             case 'sign':
                 return Math.sign(argument);
             default:
-                throw new Error(
-                    `eval error: unknown operator "${expr.operator}"`,
+                throw new EvaluationError(
+                    `Unknown operator '${expr.operator}'`,
+                    { code: 'UNKNOWN_OPERATOR' },
                 );
         }
     }
