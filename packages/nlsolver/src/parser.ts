@@ -90,6 +90,11 @@ function parseBinary(
                 operatorToken = {
                     type: TokenType.BINARY_OPERATOR,
                     value: '*',
+
+                    start: operatorToken!.start,
+                    end: operatorToken!.start,
+                    line: operatorToken!.line,
+                    column: operatorToken!.column,
                 };
             } else {
                 break;

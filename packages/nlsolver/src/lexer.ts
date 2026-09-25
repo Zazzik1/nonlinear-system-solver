@@ -14,7 +14,14 @@ export enum TokenType {
 export type Token = {
     type: TokenType;
     value: string;
-    // todo (?): include line and column
+
+    // 0-based
+    start: number;
+    end: number;
+
+    // 1-based
+    line: number;
+    column: number;
 };
 
 function isNumber(n?: string): boolean {
@@ -49,8 +56,14 @@ function isIdentifier(value: string, next?: string): boolean {
 export function tokenize(data: string): Token[] {
     const tokens: Token[] = [];
     let value = '';
+    let end = 0;
+    let line = 1;
+    let column = 0;
+    let incrementLine = false;
 
     for (let i = 0; i < data.length; i++) {
+        end = i;
+        column++;
         let current = data[i];
         let next = data[i + 1];
         value = `${value}${current}`;
@@ -63,6 +76,7 @@ export function tokenize(data: string): Token[] {
             case ',':
             case '\n':
                 type = TokenType.EOL;
+                incrementLine = true;
                 break;
             case '+':
             case '*':
@@ -107,8 +121,11 @@ export function tokenize(data: string): Token[] {
                         break;
                     } else if (j > 1) {
                         value = `${value}${current}`;
+                        column++;
                     }
                 }
+                end = i - 1;
+                column--;
                 type = TokenType.COMMENT;
             default:
                 break;
@@ -145,21 +162,49 @@ export function tokenize(data: string): Token[] {
             } else if (isIdentifier(value, next)) {
                 type = TokenType.IDENTIFIER;
             }
+        } else {
+            end = i;
         }
         if (current === ' ') {
             value = value.slice(0, -1);
         }
         if (!type) continue;
 
+        let start = end - value.length + 1;
+        if (type === TokenType.COMMENT) {
+            const commentEnd = i >= data.length ? i : i + 1;
+
+            start = commentEnd - value.length - 1;
+            end = commentEnd - 1;
+        }
         tokens.push({
             type,
             value,
+            start,
+            end: end + 1,
+            line,
+            column: column - value.length + 1,
         } satisfies Token);
         value = '';
+        if (incrementLine) {
+            line++;
+            column = 0;
+            incrementLine = false;
+        }
+        if (type === TokenType.EOL) {
+            column = 0;
+        }
+        if (type === TokenType.COMMENT) {
+            column++;
+        }
     }
     tokens.push({
         type: TokenType.EOF,
         value: '',
+        start: end + 1,
+        end: end + 1,
+        line,
+        column: tokens.at(-1)?.type === TokenType.EOL ? 1 : column + 1,
     } satisfies Token);
     return tokens;
 }
