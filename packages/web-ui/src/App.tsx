@@ -4,6 +4,7 @@ import {
     GLOBALS,
     parse,
     tokenize,
+    type Token,
 } from '@zazzik/nlsolver';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { FaBars, FaGithub, FaNpm } from 'react-icons/fa';
@@ -14,6 +15,7 @@ function App() {
         localStorage.getItem('data') ?? DEFAULT_DATA,
     );
     const [isSettingsMenuOpen, setIsSettingsMenuOpen] = useState(false);
+    const [hoveredToken, setHoveredToken] = useState<Token | null>(null);
     const textAreaRef = useRef<HTMLTextAreaElement>(null);
 
     const lines = data.split('\n');
@@ -110,8 +112,24 @@ function App() {
                                 zIndex: 1,
                                 backgroundColor: 'transparent',
                                 position: 'relative',
+                                lineHeight: '24px',
                             }}
                         ></textarea>
+                        {hoveredToken != null && (
+                            <div
+                                style={{
+                                    position: 'absolute',
+                                    left: `calc(var(--padding-lg) + ${(hoveredToken.column - 1) * 9.6 - 1}px)`,
+                                    top: `calc(var(--padding) + ${(hoveredToken.line - 1) * 24 + 1}px)`,
+                                    width: `${(hoveredToken.end - hoveredToken.start) * 9.6 + 3}px`,
+                                    height: `24px`,
+                                    zIndex: 2,
+                                    border: '1px solid var(--color-primary)',
+
+                                    fontFamily: 'monospace',
+                                }}
+                            ></div>
+                        )}
                         <div className="results">
                             {lines.map((line, idx) => {
                                 if (line === '') {
@@ -186,7 +204,16 @@ function App() {
                             <div className="header-box">Lexer</div>
                             <div className="tokens">
                                 {(tokens || []).map((token, idx) => (
-                                    <div key={idx} className="token">
+                                    <div
+                                        key={idx}
+                                        className="token"
+                                        onMouseEnter={() =>
+                                            setHoveredToken(token)
+                                        }
+                                        onMouseLeave={() =>
+                                            setHoveredToken(null)
+                                        }
+                                    >
                                         <div>{token.type}</div>
                                         <div>
                                             {JSON.stringify(token.value).slice(

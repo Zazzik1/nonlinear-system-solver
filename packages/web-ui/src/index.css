@@ -91,7 +91,7 @@ textarea {
     font-size: 16px;
     font-family: monospace;
     outline: none;
-    resize: vertical;
+    resize: none;
     padding: var(--padding) var(--padding-lg);
     width: 100%;
 }
@@ -121,6 +121,10 @@ textarea:focus {
     color: var(--color-accent);
     transition: color 300ms ease;
     overflow: hidden;
+}
+.tokens {
+    max-height: 400px;
+    overflow-y: scroll;
 }
 .tokens:has(> .token:hover) > .token > * {
     color: var(--color-border-muted);
