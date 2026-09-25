@@ -3,6 +3,7 @@ import {
     evaluate,
     GLOBALS,
     parse,
+    ParseError,
     tokenize,
     type Token,
 } from '@zazzik/nlsolver';
@@ -132,6 +133,12 @@ function App() {
                         )}
                         <div className="results">
                             {lines.map((line, idx) => {
+                                /**
+                                 * BUG: This input is displayed incorrectly:
+                                 * -1;-2
+                                 * 222
+                                 */
+
                                 if (line === '') {
                                     emptyLines++;
                                     return <div key={idx}>&nbsp;</div>;
@@ -154,7 +161,12 @@ function App() {
                                 padding: 'var(--padding) var(--padding-lg)',
                             }}
                         >
-                            {error.toString()}
+                            {error.toString()}{' '}
+                            {error instanceof ParseError && (
+                                <>
+                                    at line {error.line}, column {error.column}
+                                </>
+                            )}
                         </div>
                     ) : null}
                     <div
