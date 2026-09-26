@@ -106,7 +106,13 @@ function App() {
                         <textarea
                             rows={Math.max(lines.length, 8)}
                             value={data}
-                            onChange={(e) => setData(e.target.value)}
+                            onChange={(e) =>
+                                setData(
+                                    e.target.value
+                                        .replaceAll(';', '\n')
+                                        .replaceAll(',', '\n'),
+                                )
+                            }
                             ref={textAreaRef}
                             placeholder="Enter expression, e.g. 2ln3"
                             style={{
@@ -137,6 +143,8 @@ function App() {
                                  * BUG: This input is displayed incorrectly:
                                  * -1;-2
                                  * 222
+                                 * used temporary workaround - replacing ; and , with \n
+                                 * proper fix needs improvements in evaluate fn
                                  */
 
                                 if (line === '') {
@@ -148,7 +156,18 @@ function App() {
                                 );
                                 if (result == null)
                                     return <div key={idx}>&nbsp;</div>;
-                                return <div key={idx}>= {result}</div>;
+                                return (
+                                    <div
+                                        key={idx}
+                                        style={{
+                                            position: 'absolute',
+                                            left: `calc(var(--padding-lg) + ${(line.length + 1) * 9.6 + 1}px)`,
+                                            top: `calc(var(--padding) + ${idx * 24 + 2}px)`,
+                                        }}
+                                    >
+                                        → {result}
+                                    </div>
+                                );
                             })}
                         </div>
                     </div>
