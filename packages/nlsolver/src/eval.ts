@@ -120,6 +120,40 @@ function solve(equation: Equation, solveFor?: string): Equation {
     );
 }
 
+/**
+ * Calculates the derivative of an expression at a given point
+ * @param expression - the expression to differentiate
+ * @param variable - the variable to differentiate with respect to
+ * @param point - the point at which to calculate the derivative
+ * @param variables - a map of all varaibles defined in the environment
+ */
+export function calculateDerivative(
+    expression: Expression,
+    variable: string,
+    point: number,
+    variables: Variables = new Map(),
+    { dx }: { dx: number } = { dx: 0.000001 },
+) {
+    const x1 = point;
+    const x2 = point + dx;
+
+    const variablesAtX1 = new Map(variables);
+    variablesAtX1.set(variable, x1);
+    const variablesAtX2 = new Map(variables);
+    variablesAtX2.set(variable, x2);
+
+    const y1 = evalExpression(expression, variablesAtX1);
+    const y2 = evalExpression(expression, variablesAtX2);
+
+    if (y1 == null || y2 == null) {
+        throw new Error('failed to calculate derivative');
+    }
+
+    const dy = y2 - y1;
+
+    return dy / dx;
+}
+
 function evalEquation(
     equation: Equation,
     variables: Variables = new Map(),

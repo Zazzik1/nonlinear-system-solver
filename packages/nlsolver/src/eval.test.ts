@@ -1,5 +1,5 @@
 import { EvaluationError } from './errors';
-import { createVariables, evaluate } from './eval';
+import { calculateDerivative, createVariables, evaluate } from './eval';
 import { Equation, Expression, ExprKind } from './parser';
 
 describe('evaluate', () => {
@@ -188,5 +188,99 @@ describe('evaluate', () => {
                 value: 1,
             },
         } satisfies Expression);
+    });
+});
+
+describe('calculateDerivative', () => {
+    const expression: Expression = {
+        kind: ExprKind.BINARY_EXPRESSION,
+        operator: '*',
+        left: {
+            kind: ExprKind.IDENTIFIER,
+            value: 'a',
+        },
+        right: {
+            kind: ExprKind.BINARY_EXPRESSION,
+            operator: '^',
+            left: {
+                kind: ExprKind.IDENTIFIER,
+                value: 'x',
+            },
+            right: {
+                kind: ExprKind.NUMERIC_LITERAL,
+                value: 2,
+            },
+        },
+    };
+    test('d/dx (a*x^2) at x=3, env a=12', () => {
+        const a = 12;
+        const x = 3;
+        expect(
+            calculateDerivative(expression, 'x', x, new Map([['a', a]])),
+        ).toBeCloseTo(a * 2 * x, 4);
+    });
+    test('d/da (a*x^2) at a=3, env x=4', () => {
+        const a = 3;
+        const x = 4;
+        expect(
+            calculateDerivative(expression, 'a', a, new Map([['x', x]])),
+        ).toBeCloseTo(x * x, 4);
+    });
+    test('d/dz (a*x^2) at z=3, env x=2, a=4', () => {
+        const z = 3;
+        const x = 2;
+        const a = 4;
+        expect(
+            calculateDerivative(
+                expression,
+                'z',
+                z,
+                new Map([
+                    ['a', a],
+                    ['x', x],
+                ]),
+            ),
+        ).toBeCloseTo(0, 4);
+    });
+    test.each([[0], [1], [3], [-1]])(
+        'd/dx (e^x) at x=%s, env e=Math.E',
+        (x: number) => {
+            expect(
+                calculateDerivative(
+                    {
+                        kind: ExprKind.BINARY_EXPRESSION,
+                        operator: '^',
+                        left: {
+                            kind: ExprKind.IDENTIFIER,
+                            value: 'e',
+                        },
+                        right: {
+                            kind: ExprKind.IDENTIFIER,
+                            value: 'x',
+                        },
+                    } satisfies Expression,
+                    'x',
+                    x,
+                    new Map([['e', Math.E]]),
+                ),
+            ).toBeCloseTo(Math.exp(x), 4);
+        },
+    );
+    test('d/dx (sinx) at x=2', () => {
+        const x = 2;
+        expect(
+            calculateDerivative(
+                {
+                    kind: ExprKind.UNARY_EXPRESSION,
+                    operator: 'sin',
+                    argument: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'x',
+                    },
+                } satisfies Expression,
+                'x',
+                x,
+            ),
+        ).toBeCloseTo(Math.cos(x), 4);
     });
 });
