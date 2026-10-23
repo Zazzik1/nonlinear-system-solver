@@ -1,5 +1,11 @@
 import { EvaluationError } from './errors';
-import { calculateDerivative, createVariables, evaluate } from './eval';
+import {
+    calculateDerivative,
+    createVariables,
+    evaluate,
+    getVariableNames,
+    getVariableNamesInAGroup,
+} from './eval';
 import { Equation, Expression, ExprKind } from './parser';
 
 describe('evaluate', () => {
@@ -282,5 +288,130 @@ describe('calculateDerivative', () => {
                 x,
             ),
         ).toBeCloseTo(Math.cos(x), 4);
+    });
+});
+
+describe('getVariableNames', () => {
+    test('sin(x) -> [x]', () => {
+        expect(
+            getVariableNames({
+                kind: ExprKind.UNARY_EXPRESSION,
+                operator: 'sin',
+                argument: {
+                    kind: ExprKind.IDENTIFIER,
+                    value: 'x',
+                },
+            }),
+        ).toEqual(['x']);
+    });
+    test('sin(sin(sin(x))) -> [x]', () => {
+        expect(
+            getVariableNames({
+                kind: ExprKind.UNARY_EXPRESSION,
+                operator: 'sin',
+                argument: {
+                    kind: ExprKind.UNARY_EXPRESSION,
+                    operator: 'sin',
+                    argument: {
+                        kind: ExprKind.UNARY_EXPRESSION,
+                        operator: 'sin',
+                        argument: {
+                            kind: ExprKind.IDENTIFIER,
+                            value: 'x',
+                        },
+                    },
+                },
+            }),
+        ).toEqual(['x']);
+    });
+    test('2ab -> [a, b]', () => {
+        expect(
+            getVariableNames({
+                kind: ExprKind.BINARY_EXPRESSION,
+                operator: '*',
+                left: {
+                    kind: ExprKind.BINARY_EXPRESSION,
+                    operator: '*',
+                    left: {
+                        kind: ExprKind.NUMERIC_LITERAL,
+                        value: 2,
+                    },
+                    right: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'a',
+                    },
+                },
+                right: {
+                    kind: ExprKind.IDENTIFIER,
+                    value: 'b',
+                },
+            }),
+        ).toEqual(['a', 'b']);
+    });
+    test('x*x*x -> [x]', () => {
+        expect(
+            getVariableNames({
+                kind: ExprKind.BINARY_EXPRESSION,
+                operator: '*',
+                left: {
+                    kind: ExprKind.BINARY_EXPRESSION,
+                    operator: '*',
+                    left: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'x',
+                    },
+                    right: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'x',
+                    },
+                },
+                right: {
+                    kind: ExprKind.IDENTIFIER,
+                    value: 'x',
+                },
+            }),
+        ).toEqual(['x']);
+    });
+    test('y=sin(x) -> [y, x]', () => {
+        expect(
+            getVariableNames({
+                kind: ExprKind.EQUATION,
+                left: {
+                    kind: ExprKind.IDENTIFIER,
+                    value: 'y',
+                },
+                right: {
+                    kind: ExprKind.UNARY_EXPRESSION,
+                    operator: 'sin',
+                    argument: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'x',
+                    },
+                },
+            }),
+        ).toEqual(['y', 'x']);
+    });
+});
+describe('getVariableNamesInAGroup', () => {
+    test('a; b; c=b; d; d -> [a, b, c, d]', () => {
+        expect(
+            getVariableNamesInAGroup([
+                { kind: ExprKind.IDENTIFIER, value: 'a' },
+                { kind: ExprKind.IDENTIFIER, value: 'b' },
+                {
+                    kind: ExprKind.EQUATION,
+                    left: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'c',
+                    },
+                    right: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'b',
+                    },
+                },
+                { kind: ExprKind.IDENTIFIER, value: 'd' },
+                { kind: ExprKind.IDENTIFIER, value: 'd' },
+            ]),
+        ).toEqual(['a', 'b', 'c', 'd']);
     });
 });

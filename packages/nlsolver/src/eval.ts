@@ -154,6 +154,55 @@ export function calculateDerivative(
     return dy / dx;
 }
 
+/**
+ * Returns names of variables referenced in expression or equation
+ * without expanding their definitions.
+ * @param expression - the expression or equation to extract variable names from
+ */
+export function getVariableNames(expression: Expression | Equation): string[] {
+    switch (expression.kind) {
+        case ExprKind.IDENTIFIER:
+            return [expression.value]; // do not expand the value based on `variables` map!
+        case ExprKind.UNARY_EXPRESSION:
+            if (expression.argument == null) {
+                return [];
+            }
+            return getVariableNames(expression.argument);
+        case ExprKind.BINARY_EXPRESSION:
+        case ExprKind.EQUATION:
+            if (expression.left != null && expression.right != null) {
+                return [
+                    ...new Set([
+                        ...getVariableNames(expression.left),
+                        ...getVariableNames(expression.right),
+                    ]),
+                ];
+            } else if (expression.left != null && expression.right == null) {
+                return getVariableNames(expression.left);
+            } else if (expression.left == null && expression.right != null) {
+                return getVariableNames(expression.right);
+            }
+        case ExprKind.NUMERIC_LITERAL:
+            return [];
+        default:
+            throw new Error('Unexpected expression kind');
+    }
+}
+
+/**
+ * Returns the names of all variables referenced in a group of expressions and equations.
+ * @param program - the array of expressions and equations to extract variable names from
+ */
+export function getVariableNamesInAGroup(
+    program: (Expression | Equation)[],
+): string[] {
+    const names: string[] = [];
+    for (const row of program) {
+        names.push(...getVariableNames(row));
+    }
+    return [...new Set(names)];
+}
+
 function evalEquation(
     equation: Equation,
     variables: Variables = new Map(),
