@@ -15,6 +15,5 @@ export const GLOBALS = {
         value:
             parseExpr(tokenize('(1 + (5^(1/2))) / 2')) ||
             (1 + Math.pow(5, 1 / 2)) / 2,
-        constant: true,
     },
 } as const satisfies Record<string, Variable>;

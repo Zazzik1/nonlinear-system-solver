@@ -195,6 +195,63 @@ describe('evaluate', () => {
             },
         } satisfies Expression);
     });
+    test('constants cannot be reassigned', () => {
+        const variables = createVariables({
+            e: { value: Math.E, constant: true },
+        });
+        try {
+            evaluate(
+                [
+                    {
+                        kind: ExprKind.EQUATION,
+                        left: {
+                            kind: ExprKind.IDENTIFIER,
+                            value: 'e',
+                        },
+                        right: {
+                            kind: ExprKind.NUMERIC_LITERAL,
+                            value: 222,
+                        },
+                    },
+                ],
+                variables,
+            );
+            throw new Error('Expected evaluate() to throw');
+        } catch (error) {
+            expect(error).toBeInstanceOf(EvaluationError);
+            expect(error).toMatchObject({
+                message: `Assignment to constant variable`,
+                code: 'CONSTANT_REASSIGNMENT',
+            });
+        }
+        expect(variables.get('e')?.value).not.toBe(222);
+        expect(variables.get('e')?.value).toBe(Math.E);
+    });
+    test('non-constants can be reassigned', () => {
+        const variables = createVariables({
+            meow: { value: 123 },
+        });
+        evaluate(
+            [
+                {
+                    kind: ExprKind.EQUATION,
+                    left: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'meow',
+                    },
+                    right: {
+                        kind: ExprKind.NUMERIC_LITERAL,
+                        value: 333,
+                    },
+                },
+            ],
+            variables,
+        );
+        expect(variables.get('meow')?.value).toEqual({
+            kind: ExprKind.NUMERIC_LITERAL,
+            value: 333,
+        } satisfies Expression);
+    });
 });
 
 describe('calculateDerivative', () => {

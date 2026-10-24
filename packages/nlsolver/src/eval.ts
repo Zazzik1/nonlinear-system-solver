@@ -223,6 +223,12 @@ function evalEquation(
     if (!left || !right) return;
 
     if (left.kind === ExprKind.IDENTIFIER) {
+        const prevValue = variables.get(left.value);
+        if (prevValue?.constant) {
+            throw new EvaluationError('Assignment to constant variable', {
+                code: 'CONSTANT_REASSIGNMENT',
+            });
+        }
         variables.set(left.value, { value: right });
         return;
     }

@@ -1,5 +1,8 @@
 export type EvaluationErrorCode =
-    'UNDEFINED_VARIABLE' | 'UNKNOWN_OPERATOR' | 'EXPECTED_EXPRESSION';
+    | 'UNDEFINED_VARIABLE'
+    | 'UNKNOWN_OPERATOR'
+    | 'EXPECTED_EXPRESSION'
+    | 'CONSTANT_REASSIGNMENT';
 export class EvaluationError extends Error {
     code: EvaluationErrorCode;
     // line: number;
