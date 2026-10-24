@@ -1,7 +1,12 @@
 import { EvaluationError } from './errors';
 import { Equation, Expression, ExprKind } from './parser';
 
-export type Variable = number | Expression | undefined;
+export type Variable =
+    | {
+          value: number | Expression;
+          constant?: boolean;
+      }
+    | undefined;
 export type Variables = Map<string, Variable>;
 
 export function createVariables(
@@ -29,8 +34,8 @@ export function evalExpression(
                 },
             );
         }
-        if (typeof variable === 'number') return variable;
-        return evalExpression(variable, variables);
+        if (typeof variable.value === 'number') return variable.value;
+        return evalExpression(variable.value, variables);
     }
     if (expr.kind === ExprKind.BINARY_EXPRESSION) {
         if (expr.left == null || expr.right == null) {
@@ -138,9 +143,9 @@ export function calculateDerivative(
     const x2 = point + dx;
 
     const variablesAtX1 = new Map(variables);
-    variablesAtX1.set(variable, x1);
+    variablesAtX1.set(variable, { value: x1 });
     const variablesAtX2 = new Map(variables);
-    variablesAtX2.set(variable, x2);
+    variablesAtX2.set(variable, { value: x2 });
 
     const y1 = evalExpression(expression, variablesAtX1);
     const y2 = evalExpression(expression, variablesAtX2);
@@ -159,28 +164,34 @@ export function calculateDerivative(
  * without expanding their definitions.
  * @param expression - the expression or equation to extract variable names from
  */
-export function getVariableNames(expression: Expression | Equation): string[] {
+export function getVariableNames(
+    expression: Expression | Equation,
+    variables: Variables = new Map(),
+): string[] {
     switch (expression.kind) {
         case ExprKind.IDENTIFIER:
+            if (variables.get(expression.value)?.constant) {
+                return []; // exclude constants from the output
+            }
             return [expression.value]; // do not expand the value based on `variables` map!
         case ExprKind.UNARY_EXPRESSION:
             if (expression.argument == null) {
                 return [];
             }
-            return getVariableNames(expression.argument);
+            return getVariableNames(expression.argument, variables);
         case ExprKind.BINARY_EXPRESSION:
         case ExprKind.EQUATION:
             if (expression.left != null && expression.right != null) {
                 return [
                     ...new Set([
-                        ...getVariableNames(expression.left),
-                        ...getVariableNames(expression.right),
+                        ...getVariableNames(expression.left, variables),
+                        ...getVariableNames(expression.right, variables),
                     ]),
                 ];
             } else if (expression.left != null && expression.right == null) {
-                return getVariableNames(expression.left);
+                return getVariableNames(expression.left, variables);
             } else if (expression.left == null && expression.right != null) {
-                return getVariableNames(expression.right);
+                return getVariableNames(expression.right, variables);
             }
         case ExprKind.NUMERIC_LITERAL:
             return [];
@@ -195,10 +206,11 @@ export function getVariableNames(expression: Expression | Equation): string[] {
  */
 export function getVariableNamesInAGroup(
     program: (Expression | Equation)[],
+    variables: Variables = new Map(),
 ): string[] {
     const names: string[] = [];
     for (const row of program) {
-        names.push(...getVariableNames(row));
+        names.push(...getVariableNames(row, variables));
     }
     return [...new Set(names)];
 }
@@ -211,7 +223,7 @@ function evalEquation(
     if (!left || !right) return;
 
     if (left.kind === ExprKind.IDENTIFIER) {
-        variables.set(left.value, right);
+        variables.set(left.value, { value: right });
         return;
     }
 

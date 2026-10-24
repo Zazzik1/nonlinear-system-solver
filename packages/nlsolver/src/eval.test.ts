@@ -30,7 +30,7 @@ describe('evaluate', () => {
                         },
                     },
                 ] satisfies Expression[],
-                createVariables({ x: 1 }),
+                createVariables({ x: { value: 1 } }),
             ),
         ).toEqual([1]);
     });
@@ -51,7 +51,7 @@ describe('evaluate', () => {
                         },
                     },
                 ] satisfies Expression[],
-                createVariables({ a: 123, b: 321 }),
+                createVariables({ a: { value: 123 }, b: { value: 321 } }),
             ),
         ).toEqual([444]);
     });
@@ -101,7 +101,7 @@ describe('evaluate', () => {
                 variables,
             ),
         ).toEqual([undefined]);
-        expect(variables.get('x')).toEqual({
+        expect(variables.get('x')?.value).toEqual({
             kind: ExprKind.UNARY_EXPRESSION,
             operator: 'ln',
             argument: {
@@ -186,7 +186,7 @@ describe('evaluate', () => {
                 variables,
             ),
         ).toEqual([111, undefined, 333]);
-        expect(variables.get('x')).toEqual({
+        expect(variables.get('x')?.value).toEqual({
             kind: ExprKind.UNARY_EXPRESSION,
             operator: '-',
             argument: {
@@ -222,14 +222,24 @@ describe('calculateDerivative', () => {
         const a = 12;
         const x = 3;
         expect(
-            calculateDerivative(expression, 'x', x, new Map([['a', a]])),
+            calculateDerivative(
+                expression,
+                'x',
+                x,
+                createVariables({ a: { value: a } }),
+            ),
         ).toBeCloseTo(a * 2 * x, 4);
     });
     test('d/da (a*x^2) at a=3, env x=4', () => {
         const a = 3;
         const x = 4;
         expect(
-            calculateDerivative(expression, 'a', a, new Map([['x', x]])),
+            calculateDerivative(
+                expression,
+                'a',
+                a,
+                createVariables({ x: { value: x } }),
+            ),
         ).toBeCloseTo(x * x, 4);
     });
     test('d/dz (a*x^2) at z=3, env x=2, a=4', () => {
@@ -241,10 +251,10 @@ describe('calculateDerivative', () => {
                 expression,
                 'z',
                 z,
-                new Map([
-                    ['a', a],
-                    ['x', x],
-                ]),
+                createVariables({
+                    a: { value: a },
+                    x: { value: x },
+                }),
             ),
         ).toBeCloseTo(0, 4);
     });
@@ -267,7 +277,7 @@ describe('calculateDerivative', () => {
                     } satisfies Expression,
                     'x',
                     x,
-                    new Map([['e', Math.E]]),
+                    createVariables({ e: { value: Math.E, constant: true } }),
                 ),
             ).toBeCloseTo(Math.exp(x), 4);
         },
@@ -302,6 +312,21 @@ describe('getVariableNames', () => {
                     value: 'x',
                 },
             }),
+        ).toEqual(['x']);
+    });
+    test('sin(x), env x=1 -> [x]', () => {
+        expect(
+            getVariableNames(
+                {
+                    kind: ExprKind.UNARY_EXPRESSION,
+                    operator: 'sin',
+                    argument: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'x',
+                    },
+                },
+                createVariables({ x: { value: 1 } }),
+            ),
         ).toEqual(['x']);
     });
     test('sin(sin(sin(x))) -> [x]', () => {
@@ -390,6 +415,25 @@ describe('getVariableNames', () => {
                 },
             }),
         ).toEqual(['y', 'x']);
+    });
+    test('e^x -> [x] (excludes constants)', () => {
+        expect(
+            getVariableNames(
+                {
+                    kind: ExprKind.BINARY_EXPRESSION,
+                    operator: '^',
+                    left: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'e',
+                    },
+                    right: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'x',
+                    },
+                },
+                createVariables({ e: { value: Math.E, constant: true } }),
+            ),
+        ).toEqual(['x']);
     });
 });
 describe('getVariableNamesInAGroup', () => {
