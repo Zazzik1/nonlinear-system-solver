@@ -1,6 +1,7 @@
 import { EvaluationError } from './errors';
 import {
     calculateDerivative,
+    calculateJacobianMatrix,
     createAugmentedMatrix,
     createResidualFunction,
     createVariables,
@@ -637,5 +638,137 @@ describe('createAugmentedMatrix', () => {
             [1, 2, 3],
             [4, 5, 6],
         ]);
+    });
+});
+
+// TODO: mock the calculateDerivative fn (?)
+describe('calculateJacobianMatrix', () => {
+    const PRECISION = 5;
+    test('no equations', () => {
+        expect(
+            calculateJacobianMatrix(
+                [] satisfies Expression[],
+                createVariables(),
+            ),
+        ).toEqual([]);
+    });
+    test('{x, 2y, 3z}, at position (x=11, y=22, z=33)', () => {
+        const J = calculateJacobianMatrix(
+            [
+                { kind: ExprKind.IDENTIFIER, value: 'x' },
+                {
+                    kind: ExprKind.BINARY_EXPRESSION,
+                    operator: '*',
+                    left: { kind: ExprKind.NUMERIC_LITERAL, value: 2 },
+                    right: { kind: ExprKind.IDENTIFIER, value: 'y' },
+                },
+                {
+                    kind: ExprKind.BINARY_EXPRESSION,
+                    operator: '*',
+                    left: { kind: ExprKind.NUMERIC_LITERAL, value: 3 },
+                    right: { kind: ExprKind.IDENTIFIER, value: 'z' },
+                },
+            ] satisfies Expression[],
+            createVariables({
+                x: { value: 11 },
+                y: { value: 22 },
+                z: { value: 33 },
+            }),
+        );
+        expect(J.length).toBe(3);
+        expect(J[0].length).toBe(3);
+        expect(J[1].length).toBe(3);
+        expect(J[2].length).toBe(3);
+        expect(J[0][0]).toBeCloseTo(1, PRECISION);
+        expect(J[0][1]).toBe(0);
+        expect(J[0][2]).toBe(0);
+
+        expect(J[1][0]).toBe(0);
+        expect(J[1][1]).toBeCloseTo(2, PRECISION);
+        expect(J[1][2]).toBe(0);
+
+        expect(J[2][0]).toBe(0);
+        expect(J[2][1]).toBe(0);
+        expect(J[2][2]).toBeCloseTo(3, PRECISION);
+    });
+    test('{x^2}, at position {x=3}, x typeof number', () => {
+        const J = calculateJacobianMatrix(
+            [
+                {
+                    kind: ExprKind.BINARY_EXPRESSION,
+                    operator: '^',
+                    left: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'x',
+                    },
+                    right: {
+                        kind: ExprKind.NUMERIC_LITERAL,
+                        value: 2,
+                    },
+                },
+            ] satisfies Expression[],
+            createVariables({ x: { value: 3 } }),
+        );
+        expect(J.length).toBe(1);
+        expect(J[0].length).toBe(1);
+        expect(J[0][0]).toBeCloseTo(6, PRECISION);
+    });
+    test('{x^2}, at position {x=3}, x typeof Expression', () => {
+        const J = calculateJacobianMatrix(
+            [
+                {
+                    kind: ExprKind.BINARY_EXPRESSION,
+                    operator: '^',
+                    left: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'x',
+                    },
+                    right: {
+                        kind: ExprKind.NUMERIC_LITERAL,
+                        value: 2,
+                    },
+                },
+            ] satisfies Expression[],
+            createVariables({
+                x: { value: { kind: ExprKind.NUMERIC_LITERAL, value: 3 } },
+            }),
+        );
+        expect(J.length).toBe(1);
+        expect(J[0].length).toBe(1);
+        expect(J[0][0]).toBeCloseTo(6, PRECISION);
+    });
+    test('{x, 2, 3, 4} at point {x=111} (4 equations, 1 variable -> non-square resulting matrix)', () => {
+        const J = calculateJacobianMatrix(
+            [
+                {
+                    kind: ExprKind.IDENTIFIER,
+                    value: 'x',
+                },
+                {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 2,
+                },
+                {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 3,
+                },
+                {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 4,
+                },
+            ] satisfies Expression[],
+            createVariables({
+                x: { value: 111 },
+            }),
+        );
+        expect(J.length).toBe(4);
+        expect(J[0].length).toBe(1);
+        expect(J[1].length).toBe(1);
+        expect(J[2].length).toBe(1);
+        expect(J[3].length).toBe(1);
+        expect(J[0][0]).toBeCloseTo(1, PRECISION);
+        expect(J[1][0]).toBe(0);
+        expect(J[2][0]).toBe(0);
+        expect(J[3][0]).toBe(0);
     });
 });

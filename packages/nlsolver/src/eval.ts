@@ -241,6 +241,38 @@ export function createAugmentedMatrix<T>(matrix: T[][], vector: T[]): T[][] {
     return matrix.map((row, idx) => [...row, vector[idx]]);
 }
 
+/**
+ * Computes and returns the Jacobian matrix evaluated at the point specified
+ * by the `variables` map. The matrix contains the values of all first-order
+ * partial derivatives of the system's equations with respect to its variables.
+ */
+export function calculateJacobianMatrix(
+    expressions: Expression[],
+    variables: Variables = new Map(),
+): number[][] {
+    const variableNames = getVariableNamesInAGroup(expressions);
+    const matrix: number[][] = [];
+    for (const expression of expressions) {
+        const row: number[] = [];
+        for (const name of variableNames) {
+            const variable = variables.get(name);
+            if (variable == null) {
+                throw new Error(`Expected variable '${name}' to be defined`);
+            }
+            const value =
+                typeof variable.value === 'number'
+                    ? variable.value
+                    : evalExpression(variable.value);
+            if (value == null) {
+                throw new Error(`Expected variable '${name}' to have value`);
+            }
+            row.push(calculateDerivative(expression, name, value, variables));
+        }
+        matrix.push(row);
+    }
+    return matrix;
+}
+
 function evalEquation(
     equation: Equation,
     variables: Variables = new Map(),
