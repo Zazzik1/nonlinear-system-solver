@@ -1,6 +1,7 @@
 import { EvaluationError } from './errors';
 import {
     calculateDerivative,
+    createAugmentedMatrix,
     createResidualFunction,
     createVariables,
     evaluate,
@@ -604,5 +605,37 @@ describe('createResidualFunction', () => {
                 value: 1,
             },
         } satisfies Expression);
+    });
+});
+
+describe('createAugmentedMatrix', () => {
+    test('works as expected', () => {
+        expect(
+            createAugmentedMatrix(
+                [
+                    [1, 2, 3, 4, 5, 6],
+                    [11, 22, 33, 44, 55, 66],
+                    [111, 222, 333, 444, 555, 666],
+                ],
+                [7, 77, 777],
+            ),
+        ).toEqual([
+            [1, 2, 3, 4, 5, 6, 7],
+            [11, 22, 33, 44, 55, 66, 77],
+            [111, 222, 333, 444, 555, 666, 777],
+        ]);
+        expect(createAugmentedMatrix([[]], [])).toEqual([[]]);
+        expect(
+            createAugmentedMatrix(
+                [
+                    [1, 2],
+                    [4, 5],
+                ],
+                [3, 6],
+            ),
+        ).toEqual([
+            [1, 2, 3],
+            [4, 5, 6],
+        ]);
     });
 });

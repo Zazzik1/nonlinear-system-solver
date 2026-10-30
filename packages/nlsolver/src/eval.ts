@@ -237,6 +237,10 @@ export function createResidualFunction(equation: Equation): Expression {
     };
 }
 
+export function createAugmentedMatrix<T>(matrix: T[][], vector: T[]): T[][] {
+    return matrix.map((row, idx) => [...row, vector[idx]]);
+}
+
 function evalEquation(
     equation: Equation,
     variables: Variables = new Map(),
