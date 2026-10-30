@@ -1,6 +1,7 @@
 import { EvaluationError } from './errors';
 import {
     calculateDerivative,
+    createResidualFunction,
     createVariables,
     evaluate,
     getVariableNames,
@@ -514,5 +515,94 @@ describe('getVariableNamesInAGroup', () => {
                 { kind: ExprKind.IDENTIFIER, value: 'd' },
             ]),
         ).toEqual(['a', 'b', 'c', 'd']);
+    });
+});
+
+describe('createResidualFunction', () => {
+    test('x=y -> x-y', () => {
+        expect(
+            createResidualFunction({
+                kind: ExprKind.EQUATION,
+                left: {
+                    kind: ExprKind.IDENTIFIER,
+                    value: 'x',
+                },
+                right: {
+                    kind: ExprKind.IDENTIFIER,
+                    value: 'y',
+                },
+            } satisfies Equation),
+        ).toEqual({
+            kind: ExprKind.BINARY_EXPRESSION,
+            operator: '-',
+            left: {
+                kind: ExprKind.IDENTIFIER,
+                value: 'x',
+            },
+            right: {
+                kind: ExprKind.IDENTIFIER,
+                value: 'y',
+            },
+        } satisfies Expression);
+    });
+    test('sin(x)=0 -> sin(x)', () => {
+        expect(
+            createResidualFunction({
+                kind: ExprKind.EQUATION,
+                left: {
+                    kind: ExprKind.UNARY_EXPRESSION,
+                    operator: 'sin',
+                    argument: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'x',
+                    },
+                },
+                right: {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 0,
+                },
+            } satisfies Equation),
+        ).toEqual({
+            kind: ExprKind.UNARY_EXPRESSION,
+            operator: 'sin',
+            argument: {
+                kind: ExprKind.IDENTIFIER,
+                value: 'x',
+            },
+        } satisfies Expression);
+    });
+    test('sin(x)=1 -> sin(x)-1', () => {
+        expect(
+            createResidualFunction({
+                kind: ExprKind.EQUATION,
+                left: {
+                    kind: ExprKind.UNARY_EXPRESSION,
+                    operator: 'sin',
+                    argument: {
+                        kind: ExprKind.IDENTIFIER,
+                        value: 'x',
+                    },
+                },
+                right: {
+                    kind: ExprKind.NUMERIC_LITERAL,
+                    value: 1,
+                },
+            } satisfies Equation),
+        ).toEqual({
+            kind: ExprKind.BINARY_EXPRESSION,
+            operator: '-',
+            left: {
+                kind: ExprKind.UNARY_EXPRESSION,
+                operator: 'sin',
+                argument: {
+                    kind: ExprKind.IDENTIFIER,
+                    value: 'x',
+                },
+            },
+            right: {
+                kind: ExprKind.NUMERIC_LITERAL,
+                value: 1,
+            },
+        } satisfies Expression);
     });
 });

@@ -214,6 +214,28 @@ export function getVariableNamesInAGroup(
     }
     return [...new Set(names)];
 }
+/**
+ * Transforms an equation of the form `a+b=c+d` into a zero-form expression:
+ * `a+b-(c+d)=0`.
+ * Returns the resulting left-hand-side expression.
+ */
+export function createResidualFunction(equation: Equation): Expression {
+    if (equation.left == null || equation.right == null) {
+        throw new Error('incomplete equation');
+    }
+    if (
+        equation.right.kind === ExprKind.NUMERIC_LITERAL &&
+        equation.right.value === 0
+    ) {
+        return equation.left;
+    }
+    return {
+        kind: ExprKind.BINARY_EXPRESSION,
+        operator: '-',
+        left: equation.left,
+        right: equation.right,
+    };
+}
 
 function evalEquation(
     equation: Equation,
